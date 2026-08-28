@@ -9,8 +9,8 @@ class LandingController extends Controller
 {
     public function index()
     {
-        // Mengambil data event beserta relasi pelatihannya untuk ditampilkan di landing page
-        $events = Event::with('pelatihan')->latest()->get();
+        // Mengambil maksimal 4 data event terbaru beserta relasinya
+        $events = Event::with('pelatihan')->latest()->take(4)->get();
 
         return view('landing', compact('events'));
     }

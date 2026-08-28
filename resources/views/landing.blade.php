@@ -269,7 +269,7 @@
         </div>
     </section>
 
-    <!-- ================= PROGRAM PELATIHAN (DINAMIS DARI MODEL EVENT) ================= -->
+  <!-- ================= PROGRAM PELATIHAN (Dibatasi 4 & Pakai Str Limit) ================= -->
     <section id="program" class="py-20 sm:py-24 md:py-32 px-4 sm:px-6 bg-white border-t border-gray-100">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12 sm:mb-20" data-aos="fade-up">
@@ -280,8 +280,10 @@
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                 @forelse($events ?? [] as $event)
                     @php
-                        // Cek apakah ini event populer / highlight (bisa diatur logikanya sesuai kebutuhan database Anda)
+                        // Logika menentukan card populer (misal urutan ke-2 atau sesuai keinginan)
                         $isPopular = $loop->index === 1; 
+                        $namaPelatihan = $event->pelatihan->nama_pelatihan ?? $event->nama_event ?? 'Program Pelatihan';
+                        $deskripsi = $event->deskripsi ?? 'Pelatihan resmi bersertifikasi untuk tenaga medis dan kesehatan.';
                     @endphp
 
                     @if($isPopular)
@@ -290,8 +292,8 @@
                             <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/5 rounded-bl-full"></div>
                             <div class="absolute -right-8 top-5 sm:-right-6 sm:top-6 bg-[#1ba1e2] text-white text-[10px] sm:text-xs font-bold px-8 sm:px-10 py-1 transform rotate-45 shadow-md">POPULER</div>
                             
-                            <h4 class="text-xl sm:text-2xl font-extrabold text-white mb-3 sm:mb-4 relative z-10 pr-6">{{ $event->pelatihan->nama_pelatihan ?? $event->nama_event ?? 'Program Pelatihan' }}</h4>
-                            <p class="text-blue-200 text-sm mb-4 sm:mb-6 flex-grow relative z-10">{{ $event->deskripsi ?? 'Pelatihan resmi bersertifikasi untuk tenaga medis dan kesehatan.' }}</p>
+                            <h4 class="text-xl sm:text-2xl font-extrabold text-white mb-3 sm:mb-4 relative z-10 pr-6">{{ $namaPelatihan }}</h4>
+                            <p class="text-blue-200 text-sm mb-4 sm:mb-6 flex-grow relative z-10">{{ Str::limit($deskripsi, 80) }}</p>
                             <p class="text-3xl sm:text-4xl font-black text-[#5bc0de] mb-4 sm:mb-6 mt-auto relative z-10">Rp {{ number_format($event->biaya ?? 1500000, 0, ',', '.') }}</p>
                             <div class="mb-6 sm:mb-8 relative z-10"><span class="bg-white/10 text-white text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wider border border-white/20 block text-center sm:inline-block">MIN {{ $event->minimal_peserta ?? 25 }} PESERTA</span></div>
                             <a href="{{ url('/register-event/' . ($event->uuid ?? '#')) }}" class="w-full py-3 sm:py-4 rounded-xl bg-[#1ba1e2] text-white font-bold hover:bg-[#5bc0de] transition-all duration-300 shadow-lg relative z-10 text-center block">Daftar Pelatihan</a>
@@ -299,41 +301,19 @@
                     @else
                         <!-- Card Standar -->
                         <div data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}" class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-4 border border-gray-200 group flex flex-col">
-                            <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3 sm:mb-4">{{ $event->pelatihan->nama_pelatihan ?? $event->nama_event ?? 'Program Pelatihan' }}</h4>
-                            <p class="text-gray-500 text-sm mb-4 sm:mb-6 flex-grow">{{ $event->deskripsi ?? 'Pelatihan medis bersertifikasi untuk tenaga kesehatan.' }}</p>
+                            <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3 sm:mb-4">{{ $namaPelatihan }}</h4>
+                            <p class="text-gray-500 text-sm mb-4 sm:mb-6 flex-grow">{{ Str::limit($deskripsi, 80) }}</p>
                             <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 sm:mb-6 mt-auto">Rp {{ number_format($event->biaya ?? 1500000, 0, ',', '.') }}</p>
                             <div class="mb-6 sm:mb-8"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wider block text-center sm:inline-block">MIN {{ $event->minimal_peserta ?? 25 }} PESERTA</span></div>
                             <a href="{{ url('/register-event/' . ($event->uuid ?? '#')) }}" class="w-full py-3 sm:py-4 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold group-hover:bg-[#1a365d] group-hover:text-white transition-all duration-300 text-center block">Daftar Pelatihan</a>
                         </div>
                     @endif
                 @empty
-                    <!-- Fallback Static jika data Event di database kosong -->
+                    <!-- Fallback Statis jika tabel events kosong -->
                     <div class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md border border-gray-200 flex flex-col">
                         <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3">BTCLS</h4>
                         <p class="text-gray-500 text-sm mb-4 flex-grow">Basic Trauma Cardiac Life Support untuk perawat dan tenaga medis.</p>
                         <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 mt-auto">Rp 1.5jt</p>
-                        <div class="mb-6"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-full">MIN 25 PESERTA</span></div>
-                        <a href="#" class="w-full py-3 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold text-center block">Daftar Pelatihan</a>
-                    </div>
-                    <div class="bg-[#1a365d] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-2xl relative overflow-hidden flex flex-col">
-                        <div class="absolute -right-8 top-5 bg-[#1ba1e2] text-white text-[10px] font-bold px-10 py-1 transform rotate-45">POPULER</div>
-                        <h4 class="text-xl sm:text-2xl font-extrabold text-white mb-3 relative z-10">ACLS For Nurse</h4>
-                        <p class="text-blue-200 text-sm mb-4 flex-grow relative z-10">Advanced Cardiac Life Support khusus penanganan lanjut keperawatan.</p>
-                        <p class="text-3xl sm:text-4xl font-black text-[#5bc0de] mb-4 mt-auto relative z-10">Rp 1.55jt</p>
-                        <div class="mb-6 relative z-10"><span class="bg-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-full border border-white/20">MIN 25 PESERTA</span></div>
-                        <a href="#" class="w-full py-3 rounded-xl bg-[#1ba1e2] text-white font-bold text-center block relative z-10">Daftar Pelatihan</a>
-                    </div>
-                    <div class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md border border-gray-200 flex flex-col">
-                        <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3">PPGDON</h4>
-                        <p class="text-gray-500 text-sm mb-4 flex-grow">Pertolongan Pertama Gawat Darurat Obstetri Neonatus.</p>
-                        <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 mt-auto">Rp 1.5jt</p>
-                        <div class="mb-6"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-full">MIN 25 PESERTA</span></div>
-                        <a href="#" class="w-full py-3 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold text-center block">Daftar Pelatihan</a>
-                    </div>
-                    <div class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md border border-gray-200 flex flex-col">
-                        <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3">Preceptorship</h4>
-                        <p class="text-gray-500 text-sm mb-4 flex-grow">Pelatihan pembimbing klinik bagi tenaga medis di fasilitas pelayanan.</p>
-                        <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 mt-auto">Rp 800rb</p>
                         <div class="mb-6"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-full">MIN 25 PESERTA</span></div>
                         <a href="#" class="w-full py-3 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold text-center block">Daftar Pelatihan</a>
                     </div>
