@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flash Inspire Training Center</title>
-        <link rel="shortcut icon" href="{{ asset('storage/icon.png') }}" type="image/x-icon">
-<link rel="apple-touch-icon" href="{{ asset('storage/icon.png') }}" sizes="180x180">
+    <link rel="shortcut icon" href="{{ asset('storage/icon.png') }}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{{ asset('storage/icon.png') }}" sizes="180x180">
+    
     <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -46,7 +47,6 @@
             overflow: hidden;
             user-select: none;
             gap: 1.5rem;
-            /* Efek gradient di pinggir biar masuk/keluarnya smooth */
             mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
             -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
         }
@@ -59,7 +59,6 @@
             min-width: 100%;
             animation: scroll 25s linear infinite;
         }
-        /* Berhenti saat kursor diarahkan ke logo */
         .marquee-wrapper:hover .marquee-content {
             animation-play-state: paused;
         }
@@ -81,7 +80,6 @@
                 <!-- Logo dengan Wadah Putih -->
                 <div class="flex items-center gap-3 sm:gap-4">
                     <div class="bg-white w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border border-gray-100 overflow-hidden shrink-0">
-                        <!-- Nanti ubah src asset sesuai dengan path icon aslimu -->
                         <img src="{{ asset('storage/icon.png') }}" alt="Logo FITC" class="w-full h-full object-contain p-1.5" onerror="this.src='https://ui-avatars.com/api/?name=F&background=1a365d&color=fff'">
                     </div>
                     <span :class="{'text-navy': scrolled, 'text-white drop-shadow-md': !scrolled}" class="font-extrabold text-xl sm:text-2xl md:text-3xl tracking-widest transition-colors duration-300">FITC</span>
@@ -180,9 +178,172 @@
         </div>
     </section>
 
+    <!-- ================= VISI & MISI ================= -->
+    <section class="py-20 sm:py-24 md:py-32 px-4 sm:px-6 bg-white relative border-y border-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 sm:mb-20" data-aos="fade-up">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-navy">Fokus & Tujuan Kami</h2>
+                <p class="text-base sm:text-lg text-gray-500 mt-4 sm:mt-6 max-w-2xl mx-auto">Menjadi pionir dalam peningkatan mutu sumber daya manusia kesehatan di Indonesia melalui pelatihan yang inovatif dan terakreditasi.</p>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-8 sm:gap-12 items-stretch">
+                <!-- Visi -->
+                <div data-aos="fade-up" data-aos-delay="100" class="bg-gray-50 rounded-[2rem] sm:rounded-[2.5rem] p-8 sm:p-12 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 group">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-[#1a365d] text-white rounded-2xl sm:rounded-3xl flex items-center justify-center text-3xl sm:text-4xl mb-6 sm:mb-8 shadow-xl group-hover:bg-[#1ba1e2] transition-colors duration-300">🎯</div>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-navy mb-4 sm:mb-6">Visi Lembaga</h3>
+                    <p class="text-lg sm:text-xl text-gray-600 leading-relaxed">
+                        Mewujudkan lembaga pelatihan dan peningkatan kompetensi yang profesional, inovatif dan berkualitas di bidang kesehatan dengan mengikuti perkembangan teknologi dan berwawasan global.
+                    </p>
+                </div>
+
+                <!-- Misi -->
+                <div data-aos="fade-up" data-aos-delay="300" class="bg-gradient-to-br from-[#1a365d] to-[#0f203b] rounded-[2rem] sm:rounded-[2.5rem] p-8 sm:p-12 shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-2xl sm:rounded-3xl flex items-center justify-center text-3xl sm:text-4xl mb-6 sm:mb-8 shadow-xl">🚀</div>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-white mb-6 sm:mb-8">Misi Utama</h3>
+                    <ul class="space-y-4 sm:space-y-6 text-base sm:text-lg text-gray-200">
+                        <li class="flex gap-3 sm:gap-4 items-start"><span class="text-[#1ba1e2] text-xl sm:text-2xl font-bold mt-1 sm:mt-0">✓</span> <span class="leading-relaxed">Melaksanakan pelatihan SDMK terintegrasi & memenuhi standar.</span></li>
+                        <li class="flex gap-3 sm:gap-4 items-start"><span class="text-[#1ba1e2] text-xl sm:text-2xl font-bold mt-1 sm:mt-0">✓</span> <span class="leading-relaxed">Meningkatkan kualitas dan profesionalisme SDM Kesehatan.</span></li>
+                        <li class="flex gap-3 sm:gap-4 items-start"><span class="text-[#1ba1e2] text-xl sm:text-2xl font-bold mt-1 sm:mt-0">✓</span> <span class="leading-relaxed">Memberikan pelayanan profesional, inovatif dan berkualitas.</span></li>
+                        <li class="flex gap-3 sm:gap-4 items-start"><span class="text-[#1ba1e2] text-xl sm:text-2xl font-bold mt-1 sm:mt-0">✓</span> <span class="leading-relaxed">Mengembangkan jejaring kerjasama antar lembaga terkait.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= TIMELINE SEJARAH ================= -->
+    <section class="py-20 sm:py-24 md:py-32 px-4 sm:px-6 bg-gray-50 relative overflow-hidden">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16 sm:mb-24" data-aos="fade-up">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-navy">Jejak Langkah Historis</h2>
+                <div class="w-16 sm:w-24 h-1.5 bg-[#1ba1e2] mx-auto mt-6 sm:mt-8 rounded-full"></div>
+            </div>
+            
+            <div class="relative">
+                <!-- Garis Tengah -->
+                <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-1.5 sm:w-2 bg-gray-200 hidden md:block rounded-full"></div>
+                
+                <div class="space-y-12 sm:space-y-16 md:space-y-32">
+                    <!-- Event 1 -->
+                    <div class="relative flex md:justify-start justify-center items-center w-full group">
+                        <div data-aos="zoom-in" class="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-6 h-6 sm:w-8 sm:h-8 bg-[#1ba1e2] rounded-full border-4 border-white shadow-xl z-10 group-hover:scale-125 transition-all duration-300"></div>
+                        <div data-aos="fade-up" md:data-aos="fade-right" class="bg-white p-6 sm:p-8 md:p-10 rounded-[1.5rem] sm:rounded-[2rem] shadow-lg border border-gray-100 w-full md:w-[45%] hover:shadow-2xl hover:border-[#1ba1e2] transition-all duration-300">
+                            <span class="text-[#1ba1e2] font-extrabold text-xs sm:text-sm tracking-widest sm:tracking-[0.2em] uppercase mb-3 sm:mb-4 block">29 September 2023</span>
+                            <h4 class="text-xl sm:text-2xl font-bold text-navy mb-3 sm:mb-4">Pendirian Perusahaan</h4>
+                            <p class="text-gray-600 text-base sm:text-lg leading-relaxed">Pendirian Perseroan Terbatas Flash Emergency Indonesia melalui Akta Notaris Fibrianto Bimo Setiawan, SH., M.Kn.</p>
+                        </div>
+                    </div>
+
+                    <!-- Event 2 -->
+                    <div class="relative flex md:justify-end justify-center items-center w-full group">
+                        <div data-aos="zoom-in" class="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-6 h-6 sm:w-8 sm:h-8 bg-[#1a365d] rounded-full border-4 border-white shadow-xl z-10 group-hover:scale-125 transition-all duration-300"></div>
+                        <div data-aos="fade-up" md:data-aos="fade-left" class="bg-white p-6 sm:p-8 md:p-10 rounded-[1.5rem] sm:rounded-[2rem] shadow-lg border border-gray-100 w-full md:w-[45%] hover:shadow-2xl hover:border-[#1a365d] transition-all duration-300">
+                            <span class="text-[#1a365d] font-extrabold text-xs sm:text-sm tracking-widest sm:tracking-[0.2em] uppercase mb-3 sm:mb-4 block">30 September 2023</span>
+                            <h4 class="text-xl sm:text-2xl font-bold text-navy mb-3 sm:mb-4">Pengesahan Kemenkumham</h4>
+                            <p class="text-gray-600 text-base sm:text-lg leading-relaxed">SK Kemenkumham Republik Indonesia tentang Pengesahan Pendirian Badan Hukum PT. Flash Emergency Indonesia.</p>
+                        </div>
+                    </div>
+
+                    <!-- Event 3 -->
+                    <div class="relative flex md:justify-start justify-center items-center w-full group">
+                        <div data-aos="zoom-in" class="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-6 h-6 sm:w-8 sm:h-8 bg-[#1ba1e2] rounded-full border-4 border-white shadow-xl z-10 group-hover:scale-125 transition-all duration-300"></div>
+                        <div data-aos="fade-up" md:data-aos="fade-right" class="bg-white p-6 sm:p-8 md:p-10 rounded-[1.5rem] sm:rounded-[2rem] shadow-lg border border-gray-100 w-full md:w-[45%] hover:shadow-2xl hover:border-[#1ba1e2] transition-all duration-300">
+                            <span class="text-[#1ba1e2] font-extrabold text-xs sm:text-sm tracking-widest sm:tracking-[0.2em] uppercase mb-3 sm:mb-4 block">10 April 2025</span>
+                            <h4 class="text-xl sm:text-2xl font-bold text-navy mb-3 sm:mb-4">Pembentukan FITC</h4>
+                            <p class="text-gray-600 text-base sm:text-lg leading-relaxed">Surat Keputusan Direktur PT. Flash Emergency Indonesia tentang Pendirian secara resmi Flash Inspire Training Center.</p>
+                        </div>
+                    </div>
+
+                    <!-- Event 4 (Puncak) -->
+                    <div class="relative flex md:justify-end justify-center items-center w-full group">
+                        <div data-aos="zoom-in" class="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-[#5bc0de] rounded-full border-4 border-white shadow-[0_0_20px_rgba(91,192,222,0.8)] z-10 group-hover:scale-125 transition-all duration-300 animate-pulse"></div>
+                        <div data-aos="fade-up" md:data-aos="fade-left" class="bg-gradient-to-br from-[#1a365d] to-[#0f203b] p-6 sm:p-8 md:p-10 rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl w-full md:w-[45%] hover:-translate-y-2 transition-all duration-300 text-white relative overflow-hidden">
+                            <div class="absolute -right-6 -top-6 sm:-right-10 sm:-top-10 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full blur-2xl"></div>
+                            <span class="text-[#5bc0de] font-extrabold text-xs sm:text-sm tracking-widest sm:tracking-[0.2em] uppercase mb-3 sm:mb-4 block relative z-10">3 September 2025</span>
+                            <h4 class="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-white relative z-10">Akreditasi Kemenkes RI</h4>
+                            <p class="text-gray-300 text-base sm:text-lg leading-relaxed relative z-10">Keputusan Dirjen SDM Kesehatan menetapkan FITC terakreditasi Madya (B) sebagai Lembaga Pelatihan Bidang Kesehatan.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= PROGRAM PELATIHAN (DINAMIS DARI MODEL EVENT) ================= -->
+    <section id="program" class="py-20 sm:py-24 md:py-32 px-4 sm:px-6 bg-white border-t border-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 sm:mb-20" data-aos="fade-up">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-navy">Program Pelatihan Unggulan</h2>
+                <p class="text-base sm:text-lg text-gray-500 mt-4 sm:mt-6 max-w-3xl mx-auto">Tingkatkan kompetensi medis Anda dengan sertifikasi resmi dan instruktur berpengalaman di bidang gawat darurat dan keperawatan.</p>
+            </div>
+            
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                @forelse($events ?? [] as $event)
+                    @php
+                        // Cek apakah ini event populer / highlight (bisa diatur logikanya sesuai kebutuhan database Anda)
+                        $isPopular = $loop->index === 1; 
+                    @endphp
+
+                    @if($isPopular)
+                        <!-- Card Highlight / Populer -->
+                        <div data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}" class="bg-[#1a365d] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-4 xl:-translate-y-6 group relative overflow-hidden flex flex-col">
+                            <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/5 rounded-bl-full"></div>
+                            <div class="absolute -right-8 top-5 sm:-right-6 sm:top-6 bg-[#1ba1e2] text-white text-[10px] sm:text-xs font-bold px-8 sm:px-10 py-1 transform rotate-45 shadow-md">POPULER</div>
+                            
+                            <h4 class="text-xl sm:text-2xl font-extrabold text-white mb-3 sm:mb-4 relative z-10 pr-6">{{ $event->pelatihan->nama_pelatihan ?? $event->nama_event ?? 'Program Pelatihan' }}</h4>
+                            <p class="text-blue-200 text-sm mb-4 sm:mb-6 flex-grow relative z-10">{{ $event->deskripsi ?? 'Pelatihan resmi bersertifikasi untuk tenaga medis dan kesehatan.' }}</p>
+                            <p class="text-3xl sm:text-4xl font-black text-[#5bc0de] mb-4 sm:mb-6 mt-auto relative z-10">Rp {{ number_format($event->biaya ?? 1500000, 0, ',', '.') }}</p>
+                            <div class="mb-6 sm:mb-8 relative z-10"><span class="bg-white/10 text-white text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wider border border-white/20 block text-center sm:inline-block">MIN {{ $event->minimal_peserta ?? 25 }} PESERTA</span></div>
+                            <a href="{{ url('/register-event/' . ($event->uuid ?? '#')) }}" class="w-full py-3 sm:py-4 rounded-xl bg-[#1ba1e2] text-white font-bold hover:bg-[#5bc0de] transition-all duration-300 shadow-lg relative z-10 text-center block">Daftar Pelatihan</a>
+                        </div>
+                    @else
+                        <!-- Card Standar -->
+                        <div data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}" class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-4 border border-gray-200 group flex flex-col">
+                            <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3 sm:mb-4">{{ $event->pelatihan->nama_pelatihan ?? $event->nama_event ?? 'Program Pelatihan' }}</h4>
+                            <p class="text-gray-500 text-sm mb-4 sm:mb-6 flex-grow">{{ $event->deskripsi ?? 'Pelatihan medis bersertifikasi untuk tenaga kesehatan.' }}</p>
+                            <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 sm:mb-6 mt-auto">Rp {{ number_format($event->biaya ?? 1500000, 0, ',', '.') }}</p>
+                            <div class="mb-6 sm:mb-8"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wider block text-center sm:inline-block">MIN {{ $event->minimal_peserta ?? 25 }} PESERTA</span></div>
+                            <a href="{{ url('/register-event/' . ($event->uuid ?? '#')) }}" class="w-full py-3 sm:py-4 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold group-hover:bg-[#1a365d] group-hover:text-white transition-all duration-300 text-center block">Daftar Pelatihan</a>
+                        </div>
+                    @endif
+                @empty
+                    <!-- Fallback Static jika data Event di database kosong -->
+                    <div class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md border border-gray-200 flex flex-col">
+                        <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3">BTCLS</h4>
+                        <p class="text-gray-500 text-sm mb-4 flex-grow">Basic Trauma Cardiac Life Support untuk perawat dan tenaga medis.</p>
+                        <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 mt-auto">Rp 1.5jt</p>
+                        <div class="mb-6"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-full">MIN 25 PESERTA</span></div>
+                        <a href="#" class="w-full py-3 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold text-center block">Daftar Pelatihan</a>
+                    </div>
+                    <div class="bg-[#1a365d] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-2xl relative overflow-hidden flex flex-col">
+                        <div class="absolute -right-8 top-5 bg-[#1ba1e2] text-white text-[10px] font-bold px-10 py-1 transform rotate-45">POPULER</div>
+                        <h4 class="text-xl sm:text-2xl font-extrabold text-white mb-3 relative z-10">ACLS For Nurse</h4>
+                        <p class="text-blue-200 text-sm mb-4 flex-grow relative z-10">Advanced Cardiac Life Support khusus penanganan lanjut keperawatan.</p>
+                        <p class="text-3xl sm:text-4xl font-black text-[#5bc0de] mb-4 mt-auto relative z-10">Rp 1.55jt</p>
+                        <div class="mb-6 relative z-10"><span class="bg-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-full border border-white/20">MIN 25 PESERTA</span></div>
+                        <a href="#" class="w-full py-3 rounded-xl bg-[#1ba1e2] text-white font-bold text-center block relative z-10">Daftar Pelatihan</a>
+                    </div>
+                    <div class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md border border-gray-200 flex flex-col">
+                        <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3">PPGDON</h4>
+                        <p class="text-gray-500 text-sm mb-4 flex-grow">Pertolongan Pertama Gawat Darurat Obstetri Neonatus.</p>
+                        <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 mt-auto">Rp 1.5jt</p>
+                        <div class="mb-6"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-full">MIN 25 PESERTA</span></div>
+                        <a href="#" class="w-full py-3 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold text-center block">Daftar Pelatihan</a>
+                    </div>
+                    <div class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md border border-gray-200 flex flex-col">
+                        <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3">Preceptorship</h4>
+                        <p class="text-gray-500 text-sm mb-4 flex-grow">Pelatihan pembimbing klinik bagi tenaga medis di fasilitas pelayanan.</p>
+                        <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 mt-auto">Rp 800rb</p>
+                        <div class="mb-6"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-full">MIN 25 PESERTA</span></div>
+                        <a href="#" class="w-full py-3 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold text-center block">Daftar Pelatihan</a>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
     <!-- ================= FASILITAS PELATIHAN (No Emoji, Pure SVG) ================= -->
     <section class="py-16 sm:py-20 md:py-24 px-4 sm:px-6 bg-[#1a365d] relative overflow-hidden">
-        <!-- Pattern background -->
         <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(#fff 2px, transparent 2px); background-size: 20px 20px sm:30px sm:30px;"></div>
         
         <div class="max-w-6xl mx-auto relative z-10 text-center">
@@ -233,7 +394,6 @@
         <div class="marquee-wrapper w-full mt-4 sm:mt-10" data-aos="fade-up" data-aos-delay="200">
             <!-- Wrapper 1 -->
             <div class="marquee-content">
-                
                 <!-- Card Mitra 1 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
@@ -241,7 +401,6 @@
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">PPNI</span>
                 </div>
-
                 <!-- Card Mitra 2 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
@@ -249,7 +408,6 @@
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">Ikatan Bidan Indonesia</span>
                 </div>
-
                 <!-- Card Mitra 3 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
@@ -257,7 +415,6 @@
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">BSMI</span>
                 </div>
-
                 <!-- Card Mitra 4 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
@@ -265,7 +422,6 @@
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">RSUD Kilisuci Kediri</span>
                 </div>
-
                 <!-- Card Mitra 5 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
@@ -273,7 +429,6 @@
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">SEHATI</span>
                 </div>
-
                 <!-- Card Mitra 6 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
@@ -281,47 +436,40 @@
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">Gema Amal Nusantara</span>
                 </div>
-
             </div>
 
             <!-- Wrapper 2 (Duplikat untuk efek infinite scroll tanpa putus) -->
             <div class="marquee-content" aria-hidden="true">
-                <!-- Card Mitra 1 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
                         <img src="{{ asset('storage/logo-ppni.png') }}" alt="PPNI" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.src='https://ui-avatars.com/api/?name=P&background=1a365d&color=fff'">
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">PPNI</span>
                 </div>
-                <!-- Card Mitra 2 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
                         <img src="{{ asset('storage/logo-ibi.png') }}" alt="IBI" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.src='https://ui-avatars.com/api/?name=I&background=1a365d&color=fff'">
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">Ikatan Bidan Indonesia</span>
                 </div>
-                <!-- Card Mitra 3 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
                         <img src="{{ asset('storage/logo-bsmi.png') }}" alt="BSMI" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.src='https://ui-avatars.com/api/?name=B&background=1a365d&color=fff'">
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">BSMI</span>
                 </div>
-                <!-- Card Mitra 4 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
                         <img src="{{ asset('storage/logo-kilisuci.png') }}" alt="RSUD Kilisuci" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.src='https://ui-avatars.com/api/?name=R&background=1a365d&color=fff'">
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">RSUD Kilisuci Kediri</span>
                 </div>
-                <!-- Card Mitra 5 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
                         <img src="{{ asset('storage/logo-sehati.png') }}" alt="SEHATI" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.src='https://ui-avatars.com/api/?name=S&background=1a365d&color=fff'">
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">SEHATI</span>
                 </div>
-                <!-- Card Mitra 6 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
                         <img src="{{ asset('storage/logo-gema.png') }}" alt="Gema Amal" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.src='https://ui-avatars.com/api/?name=G&background=1a365d&color=fff'">
@@ -345,12 +493,10 @@
 
     <!-- ================= FOOTER ================= -->
     <footer class="bg-[#0B1120] pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 px-4 sm:px-6 relative overflow-hidden">
-        <!-- Top border gradient -->
         <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#5bc0de] via-[#1ba1e2] to-[#1a365d]"></div>
         
         <div class="max-w-7xl mx-auto grid md:grid-cols-12 gap-10 md:gap-16 border-b border-white/10 pb-12 sm:pb-16 relative z-10">
             <div class="md:col-span-5 text-center md:text-left">
-                <!-- Logo dengan Wadah Putih di Footer -->
                 <div class="flex items-center justify-center md:justify-start gap-3 sm:gap-4 mb-6 sm:mb-8">
                     <div class="bg-white w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg overflow-hidden shrink-0">
                         <img src="{{ asset('storage/icon.png') }}" alt="Logo FITC" class="w-full h-full object-contain p-1.5" onerror="this.src='https://ui-avatars.com/api/?name=F&background=1a365d&color=fff'">
@@ -368,7 +514,6 @@
                     <ul class="space-y-4 sm:space-y-6 text-gray-400 text-sm sm:text-md">
                         <li class="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 hover:text-[#1ba1e2] transition-colors">
                             <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center text-[#1ba1e2] shrink-0">
-                                <!-- FontAwesome / SVG Icon Telp -->
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                             </div> 
                             <span class="font-medium mt-1 sm:mt-2.5">+62 812 5225 9463</span>
@@ -379,7 +524,6 @@
                     <h4 class="text-white font-bold mb-6 sm:mb-8 uppercase tracking-widest text-xs sm:text-sm">Alamat Kantor</h4>
                     <div class="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 text-gray-400 text-sm sm:text-md hover:text-[#1ba1e2] transition-colors">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center text-[#1ba1e2] shrink-0">
-                            <!-- SVG Map Pin -->
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
                         <p class="leading-relaxed font-medium mt-1">

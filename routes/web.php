@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LandingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -11,9 +12,7 @@ use App\Http\Controllers\AuthController;
 */
 
 // Route Landing Page
-Route::get('/landing', function () {
-    return view('landing');
-});
+Route::get('/landing', [LandingController::class, 'index']);
 
 // ==========================================
 // ROUTE AUTENTIKASI (LOGIN & LOGOUT)
