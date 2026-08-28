@@ -21,7 +21,20 @@ Route::get('/landing', function () {
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Manajemen Event
+    Route::prefix('event')->name('event.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\EventController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\EventController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\EventController::class, 'store'])->name('store');
+        
+        // Rute Edit, Update, Destroy
+        Route::get('/{event}/edit', [\App\Http\Controllers\EventController::class, 'edit'])->name('edit');
+        Route::put('/{event}', [\App\Http\Controllers\EventController::class, 'update'])->name('update');
+        Route::delete('/{event}', [\App\Http\Controllers\EventController::class, 'destroy'])->name('destroy');
 
+        // Endpoint AJAX
+        Route::get('/ajax/materi-fasilitator/{pelatihan_id}', [\App\Http\Controllers\EventController::class, 'getMateriFasilitator'])->name('ajax.materi-fasilitator');
+    });
 // ==========================================
 // ROUTE MASTER DATA
 // ==========================================
