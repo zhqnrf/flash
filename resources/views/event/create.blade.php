@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Create Event')
+@section('title', 'Tambah Event')
 
 @section('content')
 <!-- Plugin CSS & JS -->
