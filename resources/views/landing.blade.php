@@ -269,7 +269,7 @@
         </div>
     </section>
 
-  <!-- ================= PROGRAM PELATIHAN (Dibatasi 4 & Pakai Str Limit) ================= -->
+   <!-- ================= PROGRAM PELATIHAN (Format Harga Otomatis) ================= -->
     <section id="program" class="py-20 sm:py-24 md:py-32 px-4 sm:px-6 bg-white border-t border-gray-100">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-12 sm:mb-20" data-aos="fade-up">
@@ -280,10 +280,19 @@
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                 @forelse($events ?? [] as $event)
                     @php
-                        // Logika menentukan card populer (misal urutan ke-2 atau sesuai keinginan)
                         $isPopular = $loop->index === 1; 
                         $namaPelatihan = $event->pelatihan->nama_pelatihan ?? $event->nama_event ?? 'Program Pelatihan';
                         $deskripsi = $event->deskripsi ?? 'Pelatihan resmi bersertifikasi untuk tenaga medis dan kesehatan.';
+                        
+                        // Logika Format Harga Otomatis (Juta / Ribu)
+                        $harga = $event->biaya ?? 1500000;
+                        if ($harga >= 1000000) {
+                            $formattedHarga = rtrim(rtrim(number_format($harga / 1000000, 1, ',', '.'), '0'), ',') . '<span class="text-lg sm:text-xl font-bold opacity-80">jt</span>';
+                        } elseif ($harga >= 1000) {
+                            $formattedHarga = number_format($harga / 1000, 0, ',', '.') . '<span class="text-lg sm:text-xl font-bold opacity-80">rb</span>';
+                        } else {
+                            $formattedHarga = number_format($harga, 0, ',', '.');
+                        }
                     @endphp
 
                     @if($isPopular)
@@ -294,7 +303,12 @@
                             
                             <h4 class="text-xl sm:text-2xl font-extrabold text-white mb-3 sm:mb-4 relative z-10 pr-6">{{ $namaPelatihan }}</h4>
                             <p class="text-blue-200 text-sm mb-4 sm:mb-6 flex-grow relative z-10">{{ Str::limit($deskripsi, 80) }}</p>
-                            <p class="text-3xl sm:text-4xl font-black text-[#5bc0de] mb-4 sm:mb-6 mt-auto relative z-10">Rp {{ number_format($event->biaya ?? 1500000, 0, ',', '.') }}</p>
+                            
+                            <!-- Harga Otomatis -->
+                            <p class="text-3xl sm:text-4xl font-black text-[#5bc0de] mb-4 sm:mb-6 mt-auto relative z-10">
+                                Rp {!! $formattedHarga !!}
+                            </p>
+
                             <div class="mb-6 sm:mb-8 relative z-10"><span class="bg-white/10 text-white text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wider border border-white/20 block text-center sm:inline-block">MIN {{ $event->minimal_peserta ?? 25 }} PESERTA</span></div>
                             <a href="{{ url('/register-event/' . ($event->uuid ?? '#')) }}" class="w-full py-3 sm:py-4 rounded-xl bg-[#1ba1e2] text-white font-bold hover:bg-[#5bc0de] transition-all duration-300 shadow-lg relative z-10 text-center block">Daftar Pelatihan</a>
                         </div>
@@ -303,17 +317,22 @@
                         <div data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}" class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-4 border border-gray-200 group flex flex-col">
                             <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3 sm:mb-4">{{ $namaPelatihan }}</h4>
                             <p class="text-gray-500 text-sm mb-4 sm:mb-6 flex-grow">{{ Str::limit($deskripsi, 80) }}</p>
-                            <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 sm:mb-6 mt-auto">Rp {{ number_format($event->biaya ?? 1500000, 0, ',', '.') }}</p>
+                            
+                            <!-- Harga Otomatis -->
+                            <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 sm:mb-6 mt-auto">
+                                Rp {!! $formattedHarga !!}
+                            </p>
+
                             <div class="mb-6 sm:mb-8"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wider block text-center sm:inline-block">MIN {{ $event->minimal_peserta ?? 25 }} PESERTA</span></div>
                             <a href="{{ url('/register-event/' . ($event->uuid ?? '#')) }}" class="w-full py-3 sm:py-4 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold group-hover:bg-[#1a365d] group-hover:text-white transition-all duration-300 text-center block">Daftar Pelatihan</a>
                         </div>
                     @endif
                 @empty
-                    <!-- Fallback Statis jika tabel events kosong -->
+                    <!-- Fallback Statis -->
                     <div class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md border border-gray-200 flex flex-col">
                         <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3">BTCLS</h4>
                         <p class="text-gray-500 text-sm mb-4 flex-grow">Basic Trauma Cardiac Life Support untuk perawat dan tenaga medis.</p>
-                        <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 mt-auto">Rp 1.5jt</p>
+                        <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 mt-auto">Rp 1,5<span class="text-xl font-bold">jt</span></p>
                         <div class="mb-6"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-full">MIN 25 PESERTA</span></div>
                         <a href="#" class="w-full py-3 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold text-center block">Daftar Pelatihan</a>
                     </div>
