@@ -4,12 +4,20 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\PembayaranController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
+// Rute Publik (Peserta)
+Route::get('/registrasi/{uuid}', [\App\Http\Controllers\RegistrasiController::class, 'create'])->name('registrasi.public');
+Route::post('/registrasi/{uuid}', [\App\Http\Controllers\RegistrasiController::class, 'store'])->name('registrasi.store');
+
+// Rute Publik: Pelunasan Cicilan (dikirim admin ke peserta yang statusnya "Cicil")
+Route::get('/pembayaran/{uuid}', [\App\Http\Controllers\RegistrasiController::class, 'showPembayaran'])->name('pembayaran.public');
+Route::post('/pembayaran/{uuid}', [\App\Http\Controllers\RegistrasiController::class, 'storePembayaran'])->name('pembayaran.store');
 
 // Route Landing Page
 Route::get('/landing', [LandingController::class, 'index']);
@@ -33,7 +41,21 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
         // Endpoint AJAX
         Route::get('/ajax/materi-fasilitator/{pelatihan_id}', [\App\Http\Controllers\EventController::class, 'getMateriFasilitator'])->name('ajax.materi-fasilitator');
+
+        // Halaman Pembayaran Peserta per Event
+        Route::get('/{event}/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran');
     });
+
+// ==========================================
+// ROUTE ADMIN: AKSI PEMBAYARAN PESERTA (ACC/TOLAK/CICIL/LUNAS)
+// ==========================================
+Route::prefix('registrasi')->name('registrasi.')->group(function () {
+    Route::post('/{registrasi}/acc', [PembayaranController::class, 'acc'])->name('acc');
+    Route::post('/{registrasi}/tolak', [PembayaranController::class, 'tolak'])->name('tolak');
+    Route::post('/{registrasi}/update-cicilan', [PembayaranController::class, 'updateCicilan'])->name('update-cicilan');
+    Route::post('/{registrasi}/lunas', [PembayaranController::class, 'tandaiLunas'])->name('lunas');
+});
+
 // ==========================================
 // ROUTE MASTER DATA
 // ==========================================
