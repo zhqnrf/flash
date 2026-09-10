@@ -43,17 +43,17 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/ajax/materi-fasilitator/{pelatihan_id}', [\App\Http\Controllers\EventController::class, 'getMateriFasilitator'])->name('ajax.materi-fasilitator');
 
         // Halaman Pembayaran Peserta per Event
-        Route::get('/{event}/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran');
+        Route::get('/{event}/pembayaran', [\App\Http\Controllers\PembayaranController::class, 'index'])->name('pembayaran');
     });
 
 // ==========================================
 // ROUTE ADMIN: AKSI PEMBAYARAN PESERTA (ACC/TOLAK/CICIL/LUNAS)
 // ==========================================
 Route::prefix('registrasi')->name('registrasi.')->group(function () {
-    Route::post('/{registrasi}/acc', [PembayaranController::class, 'acc'])->name('acc');
-    Route::post('/{registrasi}/tolak', [PembayaranController::class, 'tolak'])->name('tolak');
-    Route::post('/{registrasi}/update-cicilan', [PembayaranController::class, 'updateCicilan'])->name('update-cicilan');
-    Route::post('/{registrasi}/lunas', [PembayaranController::class, 'tandaiLunas'])->name('lunas');
+    Route::post('/{registrasi}/acc', [\App\Http\Controllers\PembayaranController::class, 'acc'])->name('acc');
+    Route::post('/{registrasi}/tolak', [\App\Http\Controllers\PembayaranController::class, 'tolak'])->name('tolak');
+    Route::post('/{registrasi}/update-cicilan', [\App\Http\Controllers\PembayaranController::class, 'updateCicilan'])->name('update-cicilan');
+    Route::post('/{registrasi}/lunas', [\App\Http\Controllers\PembayaranController::class, 'tandaiLunas'])->name('lunas');
 });
 
 // ==========================================
