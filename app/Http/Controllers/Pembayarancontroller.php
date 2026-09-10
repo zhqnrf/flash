@@ -21,7 +21,6 @@ class PembayaranController extends Controller
         return view('event.pembayaran', compact('event', 'pesertas'));
     }
 
-    // ACC pendaftaran -> admin pilih Lunas atau Cicil
     public function acc(Request $request, Registrasi $registrasi)
     {
         $request->validate([
