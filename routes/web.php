@@ -5,6 +5,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\EvaluasiPublicController;
+use App\Http\Controllers\EvaluasiRekapController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +22,18 @@ Route::post('/registrasi/{uuid}', [\App\Http\Controllers\RegistrasiController::c
 Route::get('/pembayaran/{uuid}', [\App\Http\Controllers\RegistrasiController::class, 'showPembayaran'])->name('pembayaran.public');
 Route::post('/pembayaran/{uuid}', [\App\Http\Controllers\RegistrasiController::class, 'storePembayaran'])->name('pembayaran.store');
 
+// Rute Publik: Absensi (cari nama + selfie, dibatasi jam presensi event)
+Route::get('/presensi/{uuid}', [AbsensiController::class, 'create'])->name('presensi.public');
+Route::post('/presensi/{uuid}', [AbsensiController::class, 'store'])->name('presensi.store');
+
+// Rute Publik: Evaluasi Pelatihan (oleh peserta) + daftar link evaluasi pemateri
+Route::get('/evaluasi-pelatihan/{uuid}', [EvaluasiPublicController::class, 'create'])->name('evaluasi-pelatihan.public');
+Route::post('/evaluasi-pelatihan/{uuid}', [EvaluasiPublicController::class, 'store'])->name('evaluasi-pelatihan.store');
+
+// Rute Publik: Evaluasi Fasilitator (khusus 1 pemateri, per event)
+Route::get('/evaluasi-fasilitator/{uuid}/{fasilitator}', [EvaluasiPublicController::class, 'createFasilitator'])->name('evaluasi-fasilitator.public');
+Route::post('/evaluasi-fasilitator/{uuid}/{fasilitator}', [EvaluasiPublicController::class, 'storeFasilitator'])->name('evaluasi-fasilitator.store');
+
 // Route Landing Page
 Route::get('/landing', [LandingController::class, 'index']);
 
@@ -29,31 +44,40 @@ Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Manajemen Event
-    Route::prefix('event')->name('event.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\EventController::class, 'index'])->name('index');
-        Route::get('/create', [\App\Http\Controllers\EventController::class, 'create'])->name('create');
-        Route::post('/', [\App\Http\Controllers\EventController::class, 'store'])->name('store');
-        
-        // Rute Edit, Update, Destroy
-        Route::get('/{event}/edit', [\App\Http\Controllers\EventController::class, 'edit'])->name('edit');
-        Route::put('/{event}', [\App\Http\Controllers\EventController::class, 'update'])->name('update');
-        Route::delete('/{event}', [\App\Http\Controllers\EventController::class, 'destroy'])->name('destroy');
+Route::prefix('event')->name('event.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\EventController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\EventController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\EventController::class, 'store'])->name('store');
+    
+    // Rute Edit, Update, Destroy
+    Route::get('/{event}/edit', [\App\Http\Controllers\EventController::class, 'edit'])->name('edit');
+    Route::put('/{event}', [\App\Http\Controllers\EventController::class, 'update'])->name('update');
+    Route::delete('/{event}', [\App\Http\Controllers\EventController::class, 'destroy'])->name('destroy');
 
-        // Endpoint AJAX
-        Route::get('/ajax/materi-fasilitator/{pelatihan_id}', [\App\Http\Controllers\EventController::class, 'getMateriFasilitator'])->name('ajax.materi-fasilitator');
+    // Endpoint AJAX
+    Route::get('/ajax/materi-fasilitator/{pelatihan_id}', [\App\Http\Controllers\EventController::class, 'getMateriFasilitator'])->name('ajax.materi-fasilitator');
 
-        // Halaman Pembayaran Peserta per Event
-        Route::get('/{event}/pembayaran', [\App\Http\Controllers\PembayaranController::class, 'index'])->name('pembayaran');
-    });
+    // Halaman Pembayaran Peserta per Event
+    Route::get('/{event}/pembayaran', [\App\Http\Controllers\PembayaranController::class, 'index'])->name('pembayaran');
 
-// ==========================================
-// ROUTE ADMIN: AKSI PEMBAYARAN PESERTA (ACC/TOLAK/CICIL/LUNAS)
-// ==========================================
+    // Halaman Rekap Absensi per Event
+    Route::get('/{event}/absensi', [\App\Http\Controllers\AbsensiController::class, 'rekap'])->name('absensi');
+    Route::post('/{event}/status-absen', [\App\Http\Controllers\AbsensiController::class, 'updateStatus'])->name('status-absen');
+    // 👇 TAMBAHKAN ROUTE TOGGLE ABSEN DI SINI (Dalam grup 'event.') 👇
+    // Perhatikan name-nya hanya 'toggle-absen' karena otomatis digabung dengan 'event.' dari prefix grup
+    Route::post('/{event}/toggle-absen', [\App\Http\Controllers\AbsensiController::class, 'toggleAbsen'])->name('toggle-absen');
+
+    // Halaman Rekap Evaluasi Pelatihan per Event
+    Route::get('/{event}/evaluasi', [EvaluasiRekapController::class, 'index'])->name('evaluasi');
+});
+
+// 👇 TAMBAHKAN ROUTE RESET ABSENSI DI LUAR GRUP EVENT 👇
+Route::delete('/absensi/{absensi}/reset', [\App\Http\Controllers\AbsensiController::class, 'resetAbsensi'])->name('absensi.reset');
 Route::prefix('registrasi')->name('registrasi.')->group(function () {
-    Route::post('/{registrasi}/acc', [\App\Http\Controllers\PembayaranController::class, 'acc'])->name('acc');
-    Route::post('/{registrasi}/tolak', [\App\Http\Controllers\PembayaranController::class, 'tolak'])->name('tolak');
-    Route::post('/{registrasi}/update-cicilan', [\App\Http\Controllers\PembayaranController::class, 'updateCicilan'])->name('update-cicilan');
-    Route::post('/{registrasi}/lunas', [\App\Http\Controllers\PembayaranController::class, 'tandaiLunas'])->name('lunas');
+    Route::post('/{registrasi}/acc', [PembayaranController::class, 'acc'])->name('acc');
+    Route::post('/{registrasi}/tolak', [PembayaranController::class, 'tolak'])->name('tolak');
+    Route::post('/{registrasi}/update-cicilan', [PembayaranController::class, 'updateCicilan'])->name('update-cicilan');
+    Route::post('/{registrasi}/lunas', [PembayaranController::class, 'tandaiLunas'])->name('lunas');
 });
 
 // ==========================================
@@ -140,10 +164,6 @@ Route::prefix('master')->name('master.')->group(function () {
 
 });
 
-// ------------------------------------------
-    // 3. Master Evaluasi Pelatihan
-    // ------------------------------------------
- 
 // ==========================================
 // ROUTE MANAJEMEN AKUN (USERS)
 // ==========================================

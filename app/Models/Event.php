@@ -11,7 +11,10 @@ class Event extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-
+protected $fillable = [
+    // ... kolom lainnya ...
+    'status_absen',
+];
     // Auto generate UUID saat membuat event baru
     protected static function boot()
     {

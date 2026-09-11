@@ -27,6 +27,24 @@ class Registrasi extends Model
         return $this->belongsTo(Event::class, 'event_id');
     }
 
+    // Relasi ke Absensi (1 peserta = 1 kali absen per event)
+    public function absensi()
+    {
+        return $this->hasOne(Absensi::class);
+    }
+
+    // Relasi ke jawaban Evaluasi Pelatihan yang diisi peserta ini
+    public function evaluasiPelatihanJawabans()
+    {
+        return $this->hasMany(EvaluasiPelatihanJawaban::class);
+    }
+
+    // Relasi ke jawaban Evaluasi Fasilitator yang diisi peserta ini
+    public function evaluasiFasilitatorJawabans()
+    {
+        return $this->hasMany(EvaluasiFasilitatorJawaban::class);
+    }
+
     // Accessor untuk gabung nama lengkap + gelar otomatis
     public function getNamaLengkapAttribute()
     {

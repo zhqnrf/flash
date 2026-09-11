@@ -9,16 +9,66 @@ use Illuminate\Http\Request;
 class PembayaranController extends Controller
 {
     // Halaman Pembayaran per Event: detail pelatihan + daftar peserta
-    public function index(Event $event)
+    public function index(Request $request, Event $event)
     {
         $event->load('pelatihan');
+        $biaya = (float) $event->biaya_pelatihan;
 
-        $pesertas = Registrasi::where('event_id', $event->id)
-            ->orderByRaw("FIELD(status_pendaftaran, 'Menunggu','Diterima','Ditolak')")
-            ->latest()
-            ->get();
+        // --- 1. QUERY UNTUK LIST TABEL UTAMA (DENGAN FILTER & SEARCH) ---
+        $query = Registrasi::where('event_id', $event->id);
 
-        return view('event.pembayaran', compact('event', 'pesertas'));
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('email_plataran_sehat', 'like', "%{$search}%")
+                  ->orWhere('instansi', 'like', "%{$search}%")
+                  ->orWhere('nik', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== 'Semua') {
+            $query->where('status_pembayaran', $request->status);
+        }
+
+        if ($request->input('sort') === 'asc') {
+            $query->oldest();
+        } else {
+            $query->latest(); // default desc
+        }
+
+        $pesertas = $query->paginate(15)->withQueryString();
+        $semuaDataExport = $query->get();
+
+        // --- 2. KALKULASI DASHBOARD REKAP (Dari SEMUA data di event ini) ---
+        $allPeserta = Registrasi::where('event_id', $event->id)->get();
+
+        // Total Seharusnya (Potensi Pendapatan = Peserta Aktif x Biaya)
+        $pesertaAktifCount = $allPeserta->where('status_pendaftaran', '!=', 'Ditolak')->count();
+        $totalSeharusnya = $pesertaAktifCount * $biaya;
+
+        // Total Uang Masuk Keseluruhan
+        $totalUangMasuk = $allPeserta->sum('total_dibayar');
+
+        // Rekap Lunas
+        $pesertaLunas = $allPeserta->where('status_pembayaran', 'Lunas');
+        $totalUangLunas = $pesertaLunas->sum('total_dibayar');
+        $countLunas = $pesertaLunas->count();
+
+        // Rekap Piutang / Kurang (Hanya yang berstatus Diterima tapi Belum Lunas)
+        $pesertaKurang = $allPeserta->filter(function($p) {
+            return $p->status_pendaftaran === 'Diterima' && in_array($p->status_pembayaran, ['Cicil', 'Belum Bayar']);
+        });
+        $totalUangKurang = $pesertaKurang->reduce(function($carry, $p) use ($biaya) {
+            return $carry + max($biaya - $p->total_dibayar, 0);
+        }, 0);
+        $countCicil = $pesertaKurang->count();
+
+        return view('event.pembayaran', compact(
+            'event', 'pesertas', 'totalUangMasuk', 'totalUangLunas', 
+            'totalUangKurang', 'pesertaKurang', 'semuaDataExport',
+            'totalSeharusnya', 'pesertaAktifCount', 'countLunas', 'countCicil'
+        ));
     }
 
     public function acc(Request $request, Registrasi $registrasi)
@@ -42,9 +92,7 @@ class PembayaranController extends Controller
             return back()->with('success', 'Peserta diterima dan pembayaran dinyatakan lunas.');
         }
 
-        // Cicil: peserta tetap DITERIMA (boleh ikut pelatihan), pembayaran berstatus Cicil
         $kekurangan = min((float) $request->kekurangan, $biaya);
-
         $registrasi->update([
             'status_pendaftaran' => 'Diterima',
             'status_pembayaran' => $kekurangan <= 0 ? 'Lunas' : 'Cicil',
@@ -54,20 +102,15 @@ class PembayaranController extends Controller
         return back()->with('success', 'Peserta diterima dengan status Cicil. Link pelunasan sudah aktif, silakan kirim ke peserta.');
     }
 
-    // Tolak pendaftaran peserta
     public function tolak(Registrasi $registrasi)
     {
         $registrasi->update(['status_pendaftaran' => 'Ditolak']);
-
         return back()->with('success', 'Pendaftaran peserta telah ditolak.');
     }
 
-    // Admin update manual sisa kekurangan (peserta nyicil bertahap / nambah bayar)
     public function updateCicilan(Request $request, Registrasi $registrasi)
     {
-        $request->validate([
-            'kekurangan' => 'required|numeric|min:0',
-        ]);
+        $request->validate(['kekurangan' => 'required|numeric|min:0']);
 
         $biaya = (float) $registrasi->event->biaya_pelatihan;
         $kekurangan = min((float) $request->kekurangan, $biaya);
@@ -80,7 +123,6 @@ class PembayaranController extends Controller
         return back()->with('success', 'Data cicilan peserta berhasil diperbarui.');
     }
 
-    // Tandai pembayaran lunas (setelah admin verifikasi bukti bayar terakhir)
     public function tandaiLunas(Registrasi $registrasi)
     {
         $registrasi->update([
