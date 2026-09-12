@@ -70,10 +70,11 @@ class EventController extends Controller
                 'rekening_pembayaran' => 'nullable|string',
                 'biaya_pelatihan' => 'nullable|numeric',
                 // Data Array Pemetaan Fasilitator
-                'fasilitator_materi' => 'nullable|array' 
+                'fasilitator_materi' => 'nullable|array',
+                'tanggal_sesi' => 'nullable|array',
             ]);
 
-            $data = $request->except(['banner', 'fasilitator_materi']);
+            $data = $request->except(['banner', 'fasilitator_materi', 'tanggal_sesi']);
 
             // Upload Banner jika ada
             if ($request->hasFile('banner')) {
@@ -83,7 +84,7 @@ class EventController extends Controller
             // Create Event (Otomatis generate UUID karena Model Event sudah diset)
             $event = Event::create($data);
 
-            // Simpan pemetaan Materi dan Fasilitator
+            // Simpan pemetaan Materi, Fasilitator, dan Tanggal Sesi (materi ini diajarkan tanggal berapa)
             if ($request->has('fasilitator_materi')) {
                 foreach ($request->fasilitator_materi as $materi_id => $fasilitator_id) {
                     if (!empty($fasilitator_id)) {
@@ -91,6 +92,7 @@ class EventController extends Controller
                             'event_id' => $event->id,
                             'evaluasi_materi_id' => $materi_id,
                             'fasilitator_id' => $fasilitator_id,
+                            'tanggal_sesi' => $request->tanggal_sesi[$materi_id] ?? null,
                         ]);
                     }
                 }
@@ -125,10 +127,10 @@ class EventController extends Controller
     {
         $pelatihans = Pelatihan::all();
         
-        // Ambil pemetaan Fasilitator & Materi yang tersimpan saat ini
+        // Ambil pemetaan Fasilitator, Materi, & Tanggal Sesi yang tersimpan saat ini
         $currentMapping = EventFasilitatorMateri::where('event_id', $event->id)
-                            ->pluck('fasilitator_id', 'evaluasi_materi_id')
-                            ->toArray();
+                            ->get()
+                            ->keyBy('evaluasi_materi_id');
 
         // Ambil seluruh materi dari pelatihan yang sedang aktif di event ini
         $materis = EvaluasiMateri::where('pelatihan_id', $event->pelatihan_id)->get();
@@ -139,11 +141,14 @@ class EventController extends Controller
                 $q->where('evaluasi_materis.id', $materi->id);
             })->get(['id', 'nama_fasilitator']);
 
+            $mapping = $currentMapping->get($materi->id);
+
             $materiData[] = [
                 'materi_id' => $materi->id,
                 'nama_materi' => $materi->nama_materi,
                 'fasilitators' => $fasilitators,
-                'selected_fasilitator' => $currentMapping[$materi->id] ?? null
+                'selected_fasilitator' => $mapping->fasilitator_id ?? null,
+                'selected_tanggal_sesi' => $mapping && $mapping->tanggal_sesi ? $mapping->tanggal_sesi->format('Y-m-d') : null,
             ];
         }
 
@@ -169,7 +174,7 @@ class EventController extends Controller
                 'has_presensi' => 'required|boolean',
             ]);
 
-            $data = $request->except(['banner', 'fasilitator_materi']);
+            $data = $request->except(['banner', 'fasilitator_materi', 'tanggal_sesi']);
 
             if ($request->hasFile('banner')) {
                 if ($event->banner) Storage::disk('public')->delete($event->banner);
@@ -178,7 +183,7 @@ class EventController extends Controller
 
             $event->update($data);
 
-            // Update Pemetaan Fasilitator (Hapus lama, buat baru)
+            // Update Pemetaan Fasilitator + Tanggal Sesi (Hapus lama, buat baru)
             if ($request->has('fasilitator_materi')) {
                 EventFasilitatorMateri::where('event_id', $event->id)->delete();
                 foreach ($request->fasilitator_materi as $materi_id => $fasilitator_id) {
@@ -187,6 +192,7 @@ class EventController extends Controller
                             'event_id' => $event->id,
                             'evaluasi_materi_id' => $materi_id,
                             'fasilitator_id' => $fasilitator_id,
+                            'tanggal_sesi' => $request->tanggal_sesi[$materi_id] ?? null,
                         ]);
                     }
                 }
@@ -205,5 +211,4 @@ class EventController extends Controller
         $event->delete();
         return redirect()->route('event.index')->with('success', 'Event berhasil dihapus!');
     }
-    // Nanti ditambahkan method index, edit, destroy dll di sini
 }

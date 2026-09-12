@@ -25,6 +25,11 @@ class EvaluasiFasilitatorJawaban extends Model
         return $this->belongsTo(Fasilitator::class);
     }
 
+    public function evaluasiMateri()
+    {
+        return $this->belongsTo(EvaluasiMateri::class, 'evaluasi_materi_id');
+    }
+
     public function evaluasiFasilitator()
     {
         return $this->belongsTo(EvaluasiFasilitator::class);

@@ -133,13 +133,13 @@
                     data-status="{{ $p->sudah_isi ? 'sudah' : 'belum' }}"
                     data-rata="{{ $p->rata_rata ?? '-' }}"
                     data-tanggal="{{ $p->tanggal_isi ? $p->tanggal_isi->format('d M Y H:i') : '-' }}"
-                    data-detail='{{ json_encode([
+                    data-detail='@json([
                         "nama" => $p->nama_lengkap,
                         "instansi" => $p->instansi,
                         "status" => $p->sudah_isi ? "Sudah Mengisi" : "Belum Mengisi",
                         "saran" => $p->saran,
                         "jawaban" => $p->detail_jawaban,
-                    ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}'
+                    ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG)'
                     onclick="showDetailPeserta(this)"
                     x-show="(filterStatus === 'semua' || filterStatus === '{{ $p->sudah_isi ? 'sudah' : 'belum' }}') && $el.dataset.search.includes(search.toLowerCase())"
                     class="hover:bg-blue-50/40 border-b border-gray-50 cursor-pointer">
@@ -203,13 +203,14 @@
                     data-materi="{{ $materiText }}"
                     data-jumlah="{{ $f['jumlah_evaluasi'] }}"
                     data-rata="{{ $f['rata_rata'] ?? '-' }}"
-                    data-detail='{{ json_encode([
-                        "nama" => $f["nama"],
-                        "materi" => $f["materi"],
-                        "jumlah_evaluasi" => $f["jumlah_evaluasi"],
-                        "rata_rata" => $f["rata_rata"],
-                        "peserta_detail" => $f["peserta_detail"],
-                    ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG) }}'
+                    data-detail='@json([
+                        "nama" => $f['nama'],
+                        "materi" => $f['materi'],
+                        "jumlah_evaluasi" => $f['jumlah_evaluasi'],
+                        "rata_rata" => $f['rata_rata'],
+                        "materi_breakdown" => $f['materi_breakdown'],
+                        "peserta_detail" => $f['peserta_detail'],
+                    ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG)'
                     onclick="showDetailFasilitator(this)"
                     x-show="$el.dataset.search.includes(searchFasil.toLowerCase())"
                     class="hover:bg-blue-50/40 border-b border-gray-50 cursor-pointer">
@@ -266,13 +267,25 @@ function showDetailPeserta(el) {
 
 function showDetailFasilitator(el) {
     const d = JSON.parse(el.dataset.detail);
+
+    let materiBreakdownHtml = (d.materi_breakdown || []).length > 1 ? `
+        <div class="grid grid-cols-2 gap-2 mb-4">
+            ${d.materi_breakdown.map(m => `
+                <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase truncate">${escapeHtml(m.nama_materi)}</p>
+                    <p class="text-sm font-extrabold text-indigo-600">${m.rata_rata}</p>
+                </div>
+            `).join('')}
+        </div>
+    ` : '';
+
     let pesertaRows = (d.peserta_detail || []).map(p => {
-        let jawabanList = (p.jawaban || []).map(j => `${escapeHtml(j.kriteria)}: <b>${j.nilai}</b>`).join(' &middot; ');
+        let jawabanList = (p.jawaban || []).map(j => `<div class="flex justify-between"><span>${escapeHtml(j.materi)} — ${escapeHtml(j.kriteria)}</span><b class="text-indigo-600 ml-2">${j.nilai}</b></div>`).join('');
         return `
             <div class="border border-gray-100 rounded-xl p-3 mb-2">
                 <p class="text-sm font-bold text-gray-800">${escapeHtml(p.nama)} <span class="text-indigo-600 font-extrabold">(${p.rata_rata})</span></p>
-                <p class="text-xs text-gray-400 mb-1">${escapeHtml(p.instansi)}</p>
-                <p class="text-xs text-gray-500">${jawabanList}</p>
+                <p class="text-xs text-gray-400 mb-2">${escapeHtml(p.instansi)}</p>
+                <div class="text-xs text-gray-500 space-y-0.5">${jawabanList}</div>
                 ${p.saran ? `<p class="text-xs text-blue-700 bg-blue-50 rounded-lg p-2 mt-2">💬 ${escapeHtml(p.saran)}</p>` : ''}
             </div>
         `;
@@ -283,7 +296,8 @@ function showDetailFasilitator(el) {
         html: `
             <div class="text-left max-h-[60vh] overflow-y-auto pr-2">
                 <p class="text-xs text-gray-500 mb-1">Materi: ${escapeHtml((d.materi || []).join(', ')) || '-'}</p>
-                <p class="text-xs text-gray-500 mb-4">Rata-rata keseluruhan: <b class="text-indigo-600">${d.rata_rata ?? '-'}</b> dari ${d.jumlah_evaluasi} penilai</p>
+                <p class="text-xs text-gray-500 mb-3">Rata-rata keseluruhan: <b class="text-indigo-600">${d.rata_rata ?? '-'}</b> dari ${d.jumlah_evaluasi} penilai</p>
+                ${materiBreakdownHtml}
                 ${pesertaRows}
             </div>
         `,

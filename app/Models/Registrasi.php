@@ -27,10 +27,10 @@ class Registrasi extends Model
         return $this->belongsTo(Event::class, 'event_id');
     }
 
-    // Relasi ke Absensi (1 peserta = 1 kali absen per event)
-    public function absensi()
+    // Relasi ke Absensi (1 peserta bisa punya beberapa absen, 1 per hari pelatihan)
+    public function absensis()
     {
-        return $this->hasOne(Absensi::class);
+        return $this->hasMany(Absensi::class);
     }
 
     // Relasi ke jawaban Evaluasi Pelatihan yang diisi peserta ini
@@ -65,4 +65,8 @@ class Registrasi extends Model
     {
         return route('pembayaran.public', $this->uuid);
     }
+    public function getLinkWhatsappAttribute()
+{
+    return $this->no_whatsapp ? 'https://wa.me/' . $this->no_whatsapp : null;
+}
 }

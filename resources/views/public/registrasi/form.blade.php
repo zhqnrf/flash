@@ -255,6 +255,17 @@
                             <input type="text" name="nik" required minlength="16" maxlength="16" inputmode="numeric" value="{{ old('nik') }}" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm font-medium transition" placeholder="16 Digit NIK">
                         </div>
                         <div>
+    <label class="block text-xs font-bold text-slate-600 mb-1.5">Nomor WhatsApp Aktif <span class="text-red-500">*</span></label>
+    <div class="flex">
+        <span class="inline-flex items-center px-4 bg-slate-100 border border-r-0 border-slate-200 rounded-l-xl text-sm font-bold text-slate-500">+62</span>
+        <input type="tel" name="no_whatsapp" required inputmode="numeric"
+               value="{{ old('no_whatsapp') }}"
+               class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-r-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm font-medium transition"
+               placeholder="81234567890">
+    </div>
+    <p class="text-[10px] text-gray-400 mt-1">Masukkan tanpa angka 0 di depan, contoh: 81234567890</p>
+</div>
+                        <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1.5">Email Plataran Sehat <span class="text-red-500">*</span></label>
                             <input type="email" name="email_plataran_sehat" required value="{{ old('email_plataran_sehat') }}" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm font-medium transition" placeholder="contoh@gmail.com">
                         </div>

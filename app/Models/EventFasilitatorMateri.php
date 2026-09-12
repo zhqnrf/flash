@@ -8,6 +8,10 @@ class EventFasilitatorMateri extends Model
 {
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'tanggal_sesi' => 'date',
+    ];
+
     public function event()
     {
         return $this->belongsTo(Event::class, 'event_id');

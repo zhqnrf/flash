@@ -76,7 +76,7 @@ class EvaluasiRekapController extends Controller
 
                 $jawaban = EvaluasiFasilitatorJawaban::where('event_id', $event->id)
                     ->where('fasilitator_id', $first->fasilitator_id)
-                    ->with(['registrasi', 'evaluasiFasilitator'])
+                    ->with(['registrasi', 'evaluasiFasilitator', 'evaluasiMateri'])
                     ->get();
 
                 $pesertaDetail = $jawaban->groupBy('registrasi_id')->map(function ($jwb) {
@@ -87,11 +87,19 @@ class EvaluasiRekapController extends Controller
                         'rata_rata' => round($jwb->avg('nilai'), 2),
                         'saran' => $jwb->first()->saran,
                         'jawaban' => $jwb->map(fn($j) => [
+                            'materi' => optional($j->evaluasiMateri)->nama_materi ?? '-',
                             'kriteria' => optional($j->evaluasiFasilitator)->nama_evaluasi ?? '-',
                             'nilai' => $j->nilai,
                         ])->values(),
                     ];
                 })->values();
+
+                // Rata-rata per materi (untuk fasilitator yang mengajar >1 materi)
+                $materiBreakdown = $jawaban->groupBy(fn($j) => optional($j->evaluasiMateri)->nama_materi ?? '-')
+                    ->map(fn($jwb, $namaMateri) => [
+                        'nama_materi' => $namaMateri,
+                        'rata_rata' => round($jwb->avg('nilai'), 2),
+                    ])->values();
 
                 return [
                     'id' => $first->fasilitator_id,
@@ -99,6 +107,7 @@ class EvaluasiRekapController extends Controller
                     'materi' => $items->pluck('evaluasiMateri.nama_materi')->filter()->unique()->values(),
                     'jumlah_evaluasi' => $pesertaDetail->count(),
                     'rata_rata' => $jawaban->isNotEmpty() ? round($jawaban->avg('nilai'), 2) : null,
+                    'materi_breakdown' => $materiBreakdown,
                     'peserta_detail' => $pesertaDetail,
                 ];
             })->values();

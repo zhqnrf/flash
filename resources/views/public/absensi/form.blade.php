@@ -30,10 +30,15 @@
     <div class="max-w-lg mx-auto bg-white shadow-xl mt-0 md:mt-10 rounded-none md:rounded-[2rem] overflow-hidden border border-slate-100">
 
         <div class="bg-gradient-to-br from-[#1a365d] to-[#0f2942] p-8 text-white">
-            <span class="bg-teal-400 text-xs font-bold px-2.5 py-1 rounded-full text-white">Absensi Kehadiran</span>
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="bg-teal-400 text-xs font-bold px-2.5 py-1 rounded-full text-white">Absensi Kehadiran</span>
+                @if($hariKe)
+                <span class="bg-white/20 text-xs font-bold px-2.5 py-1 rounded-full text-white">Hari ke-{{ $hariKe }} dari {{ $totalHari }}</span>
+                @endif
+            </div>
             <h1 class="text-xl md:text-2xl font-extrabold mt-3">{{ $event->nama_event }}</h1>
             <p class="text-sm text-white/70 mt-1">
-                {{ \Carbon\Carbon::parse($event->tanggal_mulai)->translatedFormat('d F Y') }} &middot;
+                {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }} &middot;
                 Presensi {{ \Carbon\Carbon::parse($event->waktu_presensi_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($event->waktu_presensi_selesai)->format('H:i') }} WIB
             </p>
         </div>
@@ -107,8 +112,8 @@
                     <template x-if="selected.sudah_absen">
                         <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 text-center">
                             <svg class="w-10 h-10 text-emerald-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <p class="font-extrabold text-emerald-800">Anda Sudah Absen</p>
-                            <p class="text-sm text-emerald-700 mt-1">Tercatat masuk pukul <span x-text="selected.jam"></span> WIB.</p>
+                            <p class="font-extrabold text-emerald-800">Anda Sudah Absen Hari Ini</p>
+                            <p class="text-sm text-emerald-700 mt-1">Tercatat masuk pukul <span x-text="selected.jam"></span> WIB. Silakan absen lagi besok jika pelatihan masih berlanjut.</p>
                         </div>
                     </template>
 

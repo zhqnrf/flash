@@ -265,7 +265,10 @@
                         html += `<label class="text-xs font-bold text-gray-500 mb-1 block">Pilih Fasilitator Pengajar:</label>
                         <select name="fasilitator_materi[${materi.materi_id}]" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-bold text-gray-700">`;
                         materi.fasilitators.forEach(fas => { html += `<option value="${fas.id}">${fas.nama_fasilitator}</option>`; });
-                        html += `</select>`;
+                        html += `</select>
+                        <label class="text-xs font-bold text-gray-500 mb-1 mt-2 block">Tanggal Materi Ini Diajarkan:</label>
+                        <input type="date" name="tanggal_sesi[${materi.materi_id}]" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-bold text-gray-700">
+                        <p class="text-[10px] text-gray-400 mt-1">Evaluasi materi ini baru muncul ke peserta pada/setelah tanggal ini.</p>`;
                     }
                     html += `</div></div>`;
                 });

@@ -12,6 +12,7 @@ class Absensi extends Model
 
     protected $casts = [
         'jam_masuk' => 'datetime',
+        'tanggal' => 'date',
     ];
 
     public function registrasi()

@@ -25,6 +25,7 @@ class RegistrasiController extends Controller
             'nama' => 'required|string|max:255',
             'gelar_depan' => 'nullable|string|max:50',
             'gelar_belakang' => 'nullable|string|max:50',
+            'no_whatsapp' => 'required|string|min:9|max:15',
             'tempat_lahir' => 'required|string|max:100',
             'tanggal_lahir' => 'required|date',
             'nik' => 'required|numeric|digits:16',
@@ -53,7 +54,13 @@ class RegistrasiController extends Controller
         if ($request->hasFile('bukti_bayar_pertama')) {
             $pathBukti = $request->file('bukti_bayar_pertama')->store('registrasi/bukti_bayar', 'public');
         }
-
+// Normalisasi nomor WA: buang karakter selain angka, pastikan diawali 62
+$noWa = preg_replace('/[^0-9]/', '', $request->no_whatsapp);
+if (substr($noWa, 0, 1) === '0') {
+    $noWa = '62' . substr($noWa, 1);
+} elseif (substr($noWa, 0, 2) !== '62') {
+    $noWa = '62' . $noWa;
+}
         Registrasi::create([
             'event_id' => $event->id,
             'nama' => $request->nama,
@@ -64,6 +71,7 @@ class RegistrasiController extends Controller
             'nik' => $request->nik,
             'email_plataran_sehat' => $request->email_plataran_sehat,
             'nip' => $request->nip,
+            'no_whatsapp' => $noWa,
             'pangkat_golongan' => $request->pangkat_golongan,
             'instansi' => $request->instansi,
             'departemen' => $request->departemen,
