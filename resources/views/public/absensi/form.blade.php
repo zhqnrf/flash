@@ -54,7 +54,7 @@
         @else
         <div class="p-6 md:p-8"
              x-data="{
-                pesertas: {{ $pesertas->map(fn($p) => ['id' => $p->id, 'nama' => $p->nama_lengkap, 'instansi' => $p->instansi, 'sudah_absen' => (bool) $p->absensi, 'jam' => $p->absensi ? $p->absensi->jam_masuk->format('H:i') : null])->values() }},
+                pesertas: {{ $pesertas->values() }},
                 search: '',
                 selected: null,
                 fileName: '', previewUrl: '',
