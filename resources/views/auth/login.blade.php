@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - FITC Portal</title>
+    <title>Login - FITONE</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
+        <link rel="shortcut ikon" href="{{ asset('storage/icon.png') }}" type="image/x-icon">
+    <link rel="apple-touch-ikon" href="{{ asset('storage/icon.png') }}" sizes="180x180">
     <!-- Tambahan Alpine.js untuk interaksi Show/Hide Password -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
@@ -33,8 +34,8 @@
         </div>
 
         <div class="text-center mb-10">
-            <h2 class="text-3xl font-extrabold text-[#1a365d] tracking-tight">Portal Admin</h2>
-            <p class="text-gray-500 text-sm mt-2 font-medium">Masuk untuk mengelola sistem FITC</p>
+            <h2 class="text-3xl font-extrabold text-[#1a365d] tracking-tight">Login</h2>
+            <p class="text-gray-500 text-sm mt-2 font-medium">Masuk untuk mengelola sistem FITONE</p>
         </div>
 
         <!-- Menampilkan Error jika gagal login -->

@@ -18,4 +18,9 @@ public function skills()
     {
         return $this->belongsTo(EvaluasiMateri::class, 'evaluasi_materi_id');
     }
+
+    public function penilaianSkillJawabans()
+    {
+        return $this->hasMany(PenilaianSkillJawaban::class);
+    }
 }

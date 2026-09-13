@@ -46,6 +46,12 @@ class Registrasi extends Model
         return $this->hasMany(EvaluasiMateriJawaban::class);
     }
 
+    // Nilai kompetensi (skill) peserta ini yang diisi oleh fasilitator
+    public function penilaianSkillJawabans()
+    {
+        return $this->hasMany(PenilaianSkillJawaban::class);
+    }
+
     public function getNamaLengkapAttribute()
     {
         $depan = $this->gelar_depan ? $this->gelar_depan . ' ' : '';

@@ -8,6 +8,9 @@ use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\EvaluasiPublicController;
 use App\Http\Controllers\EvaluasiRekapController;
+use App\Http\Controllers\PenilaianSkillController;
+use App\Http\Controllers\PenilaianSkillRekapController;
+use App\Http\Controllers\SertifikatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +42,19 @@ Route::post('/evaluasi-fasilitator/{uuid}/{fasilitator}', [EvaluasiPublicControl
 
 // Rute Admin: hapus/reset evaluasi pelatihan seorang peserta
 Route::delete('/evaluasi-peserta/{registrasi}/hapus', [EvaluasiPublicController::class, 'hapusEvaluasiPelatihan'])->name('evaluasi-peserta.hapus');
+
+// ==========================================
+// Rute Publik: Penilaian Skill Peserta oleh Fasilitator (per materi)
+// Fasilitator memilih peserta lalu mengisi nilai per skill (rubrik)
+// ==========================================
+Route::get('/penilaian-skill/{uuid}/{fasilitator}/{materi}', [PenilaianSkillController::class, 'create'])->name('penilaian-skill.public');
+Route::post('/penilaian-skill/{uuid}/{fasilitator}/{materi}', [PenilaianSkillController::class, 'store'])->name('penilaian-skill.store');
+
+// ==========================================
+// Rute Publik: Sertifikat Peserta (cetak & validasi QR)
+// ==========================================
+Route::get('/sertifikat/{uuid}/{registrasi}', [SertifikatController::class, 'cetak'])->name('sertifikat.cetak');
+Route::get('/validasi-sertifikat/{uuid}/{registrasi}', [SertifikatController::class, 'validasi'])->name('sertifikat.validasi');
 
 // Rute Publik: Survey Kepuasan Masyarakat (SKM)
 Route::get('/survey-kepuasan', [\App\Http\Controllers\SurveyKepuasanController::class, 'create'])->name('survey-kepuasan.public');
@@ -95,6 +111,10 @@ Route::get('/{event}/cetak-surat', [\App\Http\Controllers\EventController::class
 
     // Halaman Rekap Evaluasi Pelatihan per Event
     Route::get('/{event}/evaluasi', [EvaluasiRekapController::class, 'index'])->name('evaluasi');
+
+    // Halaman Rekap/Leaderboard Penilaian Skill Peserta (oleh Fasilitator) per Event
+    Route::get('/{event}/penilaian-skill', [PenilaianSkillRekapController::class, 'index'])->name('penilaian-skill');
+    Route::delete('/{event}/penilaian-skill/{registrasi}/reset', [PenilaianSkillRekapController::class, 'reset'])->name('penilaian-skill.reset');
 });
 
 // 👇 TAMBAHKAN ROUTE RESET ABSENSI DI LUAR GRUP EVENT 👇

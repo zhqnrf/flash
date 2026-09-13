@@ -58,7 +58,7 @@
         <!-- KOP SURAT (Dibuat lebih padat) -->
         <div style="border-top: 4px solid #000; border-bottom: 3px solid #000; padding: 10px 0; display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
             <div style="width: 75px; height: 75px; flex-shrink: 0;">
-                <img src="{{ asset('storage/icon.png') }}" alt="Logo FITC" style="width: 100%; height: 100%; object-fit: contain;">
+                <img src="{{ asset('storage/ikon.png') }}" alt="Logo FITC" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
             
             <div style="font-family: Arial, Helvetica, sans-serif;">
@@ -136,7 +136,7 @@
                     <img src="{{ $qrUrl }}" alt="QR Validasi" class="w-full h-full object-contain">
                     <!-- Logo di tengah QR Code -->
                     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-0.5 rounded shadow-sm">
-                        <img src="{{ asset('storage/icon.png') }}" class="w-5 h-5 object-contain">
+                        <img src="{{ asset('storage/ikon.png') }}" class="w-5 h-5 object-contain">
                     </div>
                 </div>
                 

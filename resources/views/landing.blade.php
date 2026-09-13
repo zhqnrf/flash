@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flash Inspire Training Center</title>
-    <link rel="shortcut icon" href="{{ asset('storage/icon.png') }}" type="image/x-icon">
-    <link rel="apple-touch-icon" href="{{ asset('storage/icon.png') }}" sizes="180x180">
+    <link rel="shortcut ikon" href="{{ asset('storage/ikon.png') }}" type="image/x-ikon">
+    <link rel="apple-touch-ikon" href="{{ asset('storage/ikon.png') }}" sizes="180x180">
     
     <!-- Google Fonts: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -81,7 +81,7 @@
                 <!-- Logo dengan Wadah Putih -->
                 <div class="flex items-center gap-3 sm:gap-4">
                     <div class="bg-white w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border border-gray-100 overflow-hidden shrink-0">
-                        <img src="{{ asset('storage/icon.png') }}" alt="Logo FITC" class="w-full h-full object-contain p-1.5" onerror="this.src='https://ui-avatars.com/api/?name=F&background=1a365d&color=fff'">
+                        <img src="{{ asset('storage/ikon.png') }}" alt="Logo FITC" class="w-full h-full object-contain p-1.5" onerror="this.src='https://ui-avatars.com/api/?name=F&background=1a365d&color=fff'">
                     </div>
                     <span :class="{'text-navy': scrolled, 'text-white drop-shadow-md': !scrolled}" class="font-extrabold text-xl sm:text-2xl md:text-3xl tracking-widest transition-colors duration-300">FITC</span>
                 </div>
@@ -534,7 +534,7 @@
             <div class="md:col-span-5 text-center md:text-left">
                 <div class="flex items-center justify-center md:justify-start gap-3 sm:gap-4 mb-6 sm:mb-8">
                     <div class="bg-white w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg overflow-hidden shrink-0">
-                        <img src="{{ asset('storage/icon.png') }}" alt="Logo FITC" class="w-full h-full object-contain p-1.5" onerror="this.src='https://ui-avatars.com/api/?name=F&background=1a365d&color=fff'">
+                        <img src="{{ asset('storage/ikon.png') }}" alt="Logo FITC" class="w-full h-full object-contain p-1.5" onerror="this.src='https://ui-avatars.com/api/?name=F&background=1a365d&color=fff'">
                     </div>
                     <span class="font-extrabold text-2xl sm:text-3xl text-white tracking-widest">FITC</span>
                 </div>

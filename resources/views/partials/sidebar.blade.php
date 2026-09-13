@@ -22,7 +22,7 @@
             <div class="bg-white p-1.5 rounded-full mr-3 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                 <img src="{{ asset('storage/icon.png') }}" alt="Logo" class="h-8 w-8 object-contain">
             </div>
-            <span class="text-xl font-extrabold tracking-wider text-white">FITC</span>
+            <span class="text-xl font-extrabold tracking-wider text-white">FITONE</span>
         </div>
 
         <!-- Kotak Pencarian Menu (Live Search Sidebar) -->

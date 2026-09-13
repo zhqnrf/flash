@@ -68,6 +68,8 @@ class EventController extends Controller
                 'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                 'waktu_presensi_mulai' => 'required',
                 'waktu_presensi_selesai' => 'required',
+                'sertifikat_berlaku_mulai' => 'nullable|date',
+'sertifikat_berlaku_selesai' => 'nullable|date|after_or_equal:sertifikat_berlaku_mulai',
                 'lokasi' => 'nullable|string|max:255',
                 'link_materi' => 'nullable|string',
                 'has_presensi' => 'required|boolean',
@@ -177,6 +179,8 @@ class EventController extends Controller
                 'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                 'waktu_presensi_mulai' => 'required',
                 'waktu_presensi_selesai' => 'required',
+                'sertifikat_berlaku_mulai' => 'nullable|date',
+'sertifikat_berlaku_selesai' => 'nullable|date|after_or_equal:sertifikat_berlaku_mulai',
                 'has_presensi' => 'required|boolean',
             ]);
 

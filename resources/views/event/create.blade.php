@@ -161,6 +161,17 @@
                     <label class="block font-bold text-sm text-gray-700 mb-2">Format Nomor Sertifikat</label>
                     <input type="text" name="nomor_sertifikat" value="{{ old('nomor_sertifikat') }}" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1ba1e2] font-medium text-sm" placeholder="Contoh: 123/SK/2026">
                 </div>
+                <!-- Masa Berlaku Sertifikat -->
+<div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+    <div>
+        <label class="block font-bold text-sm text-gray-700 mb-2">Sertifikat Berlaku Mulai</label>
+        <input type="date" name="sertifikat_berlaku_mulai" value="{{ old('sertifikat_berlaku_mulai') }}" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#1ba1e2] font-medium text-sm">
+    </div>
+    <div>
+        <label class="block font-bold text-sm text-gray-700 mb-2">Sertifikat Berlaku Selesai</label>
+        <input type="date" name="sertifikat_berlaku_selesai" value="{{ old('sertifikat_berlaku_selesai') }}" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#1ba1e2] font-medium text-sm">
+    </div>
+</div>
                 <!-- Biaya Pelatihan (Format Rupiah Otomatis) -->
                 <div>
                     <label class="block font-bold text-sm text-gray-700 mb-2">Biaya Pelatihan</label>
