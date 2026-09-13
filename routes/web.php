@@ -12,6 +12,7 @@ use App\Http\Controllers\PenilaianSkillController;
 use App\Http\Controllers\PenilaianSkillRekapController;
 use App\Http\Controllers\SertifikatController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,6 +82,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // ROUTE DASHBOARD (KPI)
 // ==========================================
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+// ==========================================
+// ROUTE NOTIFIKASI (Topbar Admin)
+// ==========================================
+Route::prefix('notifikasi')->name('notifikasi.')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::post('/baca-semua', [NotificationController::class, 'readAll'])->name('baca-semua');
+    Route::get('/{notifikasi}/baca', [NotificationController::class, 'read'])->name('baca');
+});
 
 // Rute Admin Pengaduan
 Route::prefix('admin/pengaduan')->name('pengaduan.')->group(function () {
