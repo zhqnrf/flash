@@ -11,6 +11,7 @@ use App\Http\Controllers\EvaluasiRekapController;
 use App\Http\Controllers\PenilaianSkillController;
 use App\Http\Controllers\PenilaianSkillRekapController;
 use App\Http\Controllers\SertifikatController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +76,11 @@ Route::get('/validasi-dokumen/event/{uuid}', [\App\Http\Controllers\LandingContr
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// ==========================================
+// ROUTE DASHBOARD (KPI)
+// ==========================================
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Rute Admin Pengaduan
 Route::prefix('admin/pengaduan')->name('pengaduan.')->group(function () {

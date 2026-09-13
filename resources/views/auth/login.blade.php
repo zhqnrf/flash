@@ -52,7 +52,7 @@
             <div class="mb-5">
                 <label class="block text-[#1a365d] text-sm font-bold mb-2">Email Address</label>
                 <div class="relative">
-                    <input type="email" name="email" value="{{ old('email') }}" class="w-full px-5 py-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1ba1e2] focus:ring-2 focus:ring-[#1ba1e2]/20 transition-all font-medium text-gray-700 bg-gray-50 focus:bg-white" placeholder="alfa@fitc.com" required>
+                    <input type="email" name="email" value="{{ old('email') }}" class="w-full px-5 py-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1ba1e2] focus:ring-2 focus:ring-[#1ba1e2]/20 transition-all font-medium text-gray-700 bg-gray-50 focus:bg-white" placeholder="user@fitc.com" required>
                 </div>
             </div>
             
