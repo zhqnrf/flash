@@ -86,12 +86,12 @@
     </div>
 </div>
 
-<!-- ============ TABEL PESERTA (Search + Filter + Export + Klik Detail) ============ -->
+<!-- ============ TABEL PESERTA (Search + Filter + Export + Klik Detail + Hapus) ============ -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6" x-data="{ search: '', filterStatus: 'semua' }">
     <div class="p-5 md:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center gap-3 md:justify-between">
         <div>
             <h3 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider">Status Pengisian per Peserta</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">Klik salah satu baris untuk lihat detail jawaban & saran.</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Klik baris untuk lihat detail. Tombol hapus buat reset biar peserta bisa isi ulang.</p>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
@@ -122,10 +122,20 @@
                     <th class="p-4 font-extrabold text-center">Status</th>
                     <th class="p-4 font-extrabold text-center">Rata-rata Nilai</th>
                     <th class="p-4 font-extrabold">Tanggal Isi</th>
+                    <th class="p-4 font-extrabold text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody class="text-gray-700 text-sm">
                 @forelse($pesertas as $p)
+                @php
+                    $detailPeserta = [
+                        'nama' => $p->nama_lengkap,
+                        'instansi' => $p->instansi,
+                        'status' => $p->sudah_isi ? 'Sudah Mengisi' : 'Belum Mengisi',
+                        'saran' => $p->saran,
+                        'jawaban' => $p->detail_jawaban,
+                    ];
+                @endphp
                 <tr data-row
                     data-search="{{ strtolower($p->nama_lengkap.' '.$p->instansi) }}"
                     data-nama="{{ $p->nama_lengkap }}"
@@ -133,42 +143,45 @@
                     data-status="{{ $p->sudah_isi ? 'sudah' : 'belum' }}"
                     data-rata="{{ $p->rata_rata ?? '-' }}"
                     data-tanggal="{{ $p->tanggal_isi ? $p->tanggal_isi->format('d M Y H:i') : '-' }}"
-                    data-detail='@json([
-                        "nama" => $p->nama_lengkap,
-                        "instansi" => $p->instansi,
-                        "status" => $p->sudah_isi ? "Sudah Mengisi" : "Belum Mengisi",
-                        "saran" => $p->saran,
-                        "jawaban" => $p->detail_jawaban,
-                    ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG)'
-                    onclick="showDetailPeserta(this)"
+                    data-detail='@json($detailPeserta, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG)'
                     x-show="(filterStatus === 'semua' || filterStatus === '{{ $p->sudah_isi ? 'sudah' : 'belum' }}') && $el.dataset.search.includes(search.toLowerCase())"
-                    class="hover:bg-blue-50/40 border-b border-gray-50 cursor-pointer">
-                    <td class="p-4 font-extrabold text-slate-800">{{ $p->nama_lengkap }}</td>
-                    <td class="p-4">{{ $p->instansi }}</td>
-                    <td class="p-4 text-center">
+                    class="hover:bg-blue-50/40 border-b border-gray-50">
+                    <td class="p-4 font-extrabold text-slate-800 cursor-pointer" onclick="showDetailPeserta(this.closest('tr'))">{{ $p->nama_lengkap }}</td>
+                    <td class="p-4 cursor-pointer" onclick="showDetailPeserta(this.closest('tr'))">{{ $p->instansi }}</td>
+                    <td class="p-4 text-center cursor-pointer" onclick="showDetailPeserta(this.closest('tr'))">
                         @if($p->sudah_isi)
                         <span class="text-xs font-bold px-2.5 py-1 rounded-full border bg-emerald-100 text-emerald-700 border-emerald-200">Sudah Mengisi</span>
                         @else
                         <span class="text-xs font-bold px-2.5 py-1 rounded-full border bg-amber-100 text-amber-700 border-amber-200">Belum Mengisi</span>
                         @endif
                     </td>
-                    <td class="p-4 text-center font-extrabold text-indigo-600">{{ $p->rata_rata ?? '-' }}</td>
-                    <td class="p-4 text-xs text-gray-500">{{ $p->tanggal_isi ? $p->tanggal_isi->format('d M Y H:i') : '-' }}</td>
+                    <td class="p-4 text-center font-extrabold text-indigo-600 cursor-pointer" onclick="showDetailPeserta(this.closest('tr'))">{{ $p->rata_rata ?? '-' }}</td>
+                    <td class="p-4 text-xs text-gray-500 cursor-pointer" onclick="showDetailPeserta(this.closest('tr'))">{{ $p->tanggal_isi ? $p->tanggal_isi->format('d M Y H:i') : '-' }}</td>
+                    <td class="p-4 text-center">
+                        @if($p->sudah_isi)
+                        <form id="hapus-evaluasi-{{ $p->id }}" action="{{ route('evaluasi-peserta.hapus', $p->id) }}" method="POST" class="inline">
+                            @csrf @method('DELETE')
+                            <button type="button" onclick="konfirmasiHapusEvaluasi('{{ $p->id }}', '{{ addslashes($p->nama) }}')" class="text-xs font-bold text-red-500 hover:text-red-700 hover:underline">Hapus</button>
+                        </form>
+                        @else
+                        <span class="text-xs text-gray-300">-</span>
+                        @endif
+                    </td>
                 </tr>
                 @empty
-                <tr><td colspan="5" class="p-10 text-center text-gray-500 font-bold">Belum ada peserta diterima pada event ini.</td></tr>
+                <tr><td colspan="6" class="p-10 text-center text-gray-500 font-bold">Belum ada peserta diterima pada event ini.</td></tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- ============ REKAP PER FASILITATOR (Search + Export + Klik Detail) ============ -->
+<!-- ============ REKAP PER FASILITATOR: 2 KOMPONEN (Search + Export + Klik Detail) ============ -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" x-data="{ searchFasil: '' }">
     <div class="p-5 md:p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center gap-3 md:justify-between">
         <div>
             <h3 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider">Rekap Nilai per Fasilitator</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">Klik salah satu baris untuk lihat detail materi & penilaian tiap peserta.</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Komponen Materi (per materi) dan Komponen Fasilitator (1x keseluruhan) ditampilkan terpisah. Klik baris untuk detail.</p>
         </div>
         <div class="flex gap-2 w-full md:w-auto">
             <div class="relative flex-1">
@@ -190,37 +203,45 @@
                 <tr class="bg-slate-50 text-[#1a365d] text-xs uppercase tracking-wider border-b border-gray-100">
                     <th class="p-4 font-extrabold">Nama Fasilitator</th>
                     <th class="p-4 font-extrabold">Materi Diajarkan</th>
-                    <th class="p-4 font-extrabold text-center">Jumlah Menilai</th>
-                    <th class="p-4 font-extrabold text-center">Rata-rata Nilai</th>
+                    <th class="p-4 font-extrabold text-center">Rata² Komponen Materi</th>
+                    <th class="p-4 font-extrabold text-center">Rata² Komponen Fasilitator</th>
+                    <th class="p-4 font-extrabold text-center">Jml Menilai Fasilitator</th>
                 </tr>
             </thead>
             <tbody class="text-gray-700 text-sm">
                 @forelse($rekapFasilitator as $f)
-                @php $materiText = $f['materi']->implode(', '); @endphp
+                @php
+                    $materiText = $f['materi']->implode(', ');
+                    $detailFasil = [
+                        'nama' => $f['nama'],
+                        'materi' => $f['materi'],
+                        'rata_rata_materi' => $f['rata_rata_materi'],
+                        'rata_rata_fasilitator' => $f['rata_rata_fasilitator'],
+                        'jumlah_menilai_fasilitator' => $f['jumlah_menilai_fasilitator'],
+                        'materi_breakdown' => $f['materi_breakdown'],
+                        'peserta_detail_materi' => $f['peserta_detail_materi'],
+                        'peserta_detail_fasilitator' => $f['peserta_detail_fasilitator'],
+                    ];
+                @endphp
                 <tr data-row-fasil
                     data-search="{{ strtolower($f['nama']) }}"
                     data-nama="{{ $f['nama'] }}"
                     data-materi="{{ $materiText }}"
-                    data-jumlah="{{ $f['jumlah_evaluasi'] }}"
-                    data-rata="{{ $f['rata_rata'] ?? '-' }}"
-                    data-detail='@json([
-                        "nama" => $f['nama'],
-                        "materi" => $f['materi'],
-                        "jumlah_evaluasi" => $f['jumlah_evaluasi'],
-                        "rata_rata" => $f['rata_rata'],
-                        "materi_breakdown" => $f['materi_breakdown'],
-                        "peserta_detail" => $f['peserta_detail'],
-                    ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG)'
+                    data-rata-materi="{{ $f['rata_rata_materi'] ?? '-' }}"
+                    data-rata-fasil="{{ $f['rata_rata_fasilitator'] ?? '-' }}"
+                    data-jumlah-fasil="{{ $f['jumlah_menilai_fasilitator'] }}"
+                    data-detail='@json($detailFasil, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_TAG)'
                     onclick="showDetailFasilitator(this)"
                     x-show="$el.dataset.search.includes(searchFasil.toLowerCase())"
                     class="hover:bg-blue-50/40 border-b border-gray-50 cursor-pointer">
                     <td class="p-4 font-extrabold text-slate-800">{{ $f['nama'] }}</td>
                     <td class="p-4 text-xs text-gray-500">{{ $materiText ?: '-' }}</td>
-                    <td class="p-4 text-center font-bold">{{ $f['jumlah_evaluasi'] }}</td>
-                    <td class="p-4 text-center font-extrabold text-indigo-600">{{ $f['rata_rata'] ?? '-' }}</td>
+                    <td class="p-4 text-center font-extrabold text-indigo-600">{{ $f['rata_rata_materi'] ?? '-' }}</td>
+                    <td class="p-4 text-center font-extrabold text-indigo-600">{{ $f['rata_rata_fasilitator'] ?? '-' }}</td>
+                    <td class="p-4 text-center font-bold">{{ $f['jumlah_menilai_fasilitator'] }}</td>
                 </tr>
                 @empty
-                <tr><td colspan="4" class="p-10 text-center text-gray-500 font-bold">Belum ada fasilitator yang ditugaskan.</td></tr>
+                <tr><td colspan="5" class="p-10 text-center text-gray-500 font-bold">Belum ada fasilitator yang ditugaskan.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -265,46 +286,75 @@ function showDetailPeserta(el) {
     });
 }
 
+function konfirmasiHapusEvaluasi(id, nama) {
+    Swal.fire({
+        title: 'Hapus Evaluasi Peserta?',
+        html: `Semua jawaban evaluasi pelatihan atas nama <b>${escapeHtml(nama)}</b> akan dihapus dan peserta bisa mengisi ulang dari awal. Lanjutkan?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Hapus',
+        confirmButtonColor: '#ef4444',
+        cancelButtonText: 'Batal',
+        customClass: { popup: 'rounded-2xl' }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('hapus-evaluasi-' + id).submit();
+        }
+    });
+}
+
 function showDetailFasilitator(el) {
     const d = JSON.parse(el.dataset.detail);
 
-    let materiBreakdownHtml = (d.materi_breakdown || []).length > 1 ? `
-        <div class="grid grid-cols-2 gap-2 mb-4">
-            ${d.materi_breakdown.map(m => `
-                <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase truncate">${escapeHtml(m.nama_materi)}</p>
-                    <p class="text-sm font-extrabold text-indigo-600">${m.rata_rata}</p>
-                </div>
-            `).join('')}
+    let materiBreakdownHtml = (d.materi_breakdown || []).map(m => `
+        <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+            <p class="text-[10px] font-bold text-slate-400 uppercase truncate">${escapeHtml(m.nama_materi)}</p>
+            <p class="text-sm font-extrabold text-indigo-600">${m.rata_rata ?? '-'} <span class="text-[10px] font-normal text-slate-400">(${m.jumlah_menilai} nilai)</span></p>
         </div>
-    ` : '';
+    `).join('');
 
-    let pesertaRows = (d.peserta_detail || []).map(p => {
-        let jawabanList = (p.jawaban || []).map(j => `<div class="flex justify-between"><span>${escapeHtml(j.materi)} — ${escapeHtml(j.kriteria)}</span><b class="text-indigo-600 ml-2">${j.nilai}</b></div>`).join('');
+    let pesertaMateriRows = (d.peserta_detail_materi || []).map(p => {
+        let list = (p.jawaban || []).map(j => `<div class="flex justify-between"><span>${escapeHtml(j.materi)}</span><b class="text-indigo-600 ml-2">${j.nilai}</b></div>`).join('');
+        return `
+            <div class="border border-gray-100 rounded-xl p-3 mb-2">
+                <p class="text-sm font-bold text-gray-800">${escapeHtml(p.nama)}</p>
+                <p class="text-xs text-gray-400 mb-2">${escapeHtml(p.instansi)}</p>
+                <div class="text-xs text-gray-500 space-y-0.5">${list}</div>
+                ${p.saran ? `<p class="text-xs text-blue-700 bg-blue-50 rounded-lg p-2 mt-2">💬 ${escapeHtml(p.saran)}</p>` : ''}
+            </div>
+        `;
+    }).join('') || '<p class="text-xs text-gray-400">Belum ada penilaian materi.</p>';
+
+    let pesertaFasilRows = (d.peserta_detail_fasilitator || []).map(p => {
+        let list = (p.jawaban || []).map(j => `<div class="flex justify-between"><span>${escapeHtml(j.kriteria)}</span><b class="text-indigo-600 ml-2">${j.nilai}</b></div>`).join('');
         return `
             <div class="border border-gray-100 rounded-xl p-3 mb-2">
                 <p class="text-sm font-bold text-gray-800">${escapeHtml(p.nama)} <span class="text-indigo-600 font-extrabold">(${p.rata_rata})</span></p>
                 <p class="text-xs text-gray-400 mb-2">${escapeHtml(p.instansi)}</p>
-                <div class="text-xs text-gray-500 space-y-0.5">${jawabanList}</div>
+                <div class="text-xs text-gray-500 space-y-0.5">${list}</div>
                 ${p.saran ? `<p class="text-xs text-blue-700 bg-blue-50 rounded-lg p-2 mt-2">💬 ${escapeHtml(p.saran)}</p>` : ''}
             </div>
         `;
-    }).join('') || '<p class="text-xs text-gray-400">Belum ada peserta yang menilai fasilitator ini.</p>';
+    }).join('') || '<p class="text-xs text-gray-400">Belum ada penilaian fasilitator.</p>';
 
     Swal.fire({
         title: escapeHtml(d.nama),
         html: `
-            <div class="text-left max-h-[60vh] overflow-y-auto pr-2">
-                <p class="text-xs text-gray-500 mb-1">Materi: ${escapeHtml((d.materi || []).join(', ')) || '-'}</p>
-                <p class="text-xs text-gray-500 mb-3">Rata-rata keseluruhan: <b class="text-indigo-600">${d.rata_rata ?? '-'}</b> dari ${d.jumlah_evaluasi} penilai</p>
-                ${materiBreakdownHtml}
-                ${pesertaRows}
+            <div class="text-left max-h-[65vh] overflow-y-auto pr-2">
+                <p class="text-xs text-gray-500 mb-3">Materi: ${escapeHtml((d.materi || []).join(', ')) || '-'}</p>
+
+                <p class="text-xs font-extrabold text-slate-500 uppercase tracking-wide mb-2">Komponen Materi</p>
+                <div class="grid grid-cols-2 gap-2 mb-4">${materiBreakdownHtml}</div>
+                ${pesertaMateriRows}
+
+                <p class="text-xs font-extrabold text-slate-500 uppercase tracking-wide mb-2 mt-4">Komponen Fasilitator (Rata-rata: ${d.rata_rata_fasilitator ?? '-'}, ${d.jumlah_menilai_fasilitator} penilai)</p>
+                ${pesertaFasilRows}
             </div>
         `,
         confirmButtonText: 'Tutup',
         confirmButtonColor: '#1a365d',
         customClass: { popup: 'rounded-3xl' },
-        width: 550,
+        width: 560,
     });
 }
 
@@ -324,10 +374,10 @@ function exportPesertaExcel() {
 
 function exportFasilitatorExcel() {
     const rows = document.querySelectorAll('#tabel-fasilitator tbody tr[data-row-fasil]');
-    const data = [['Nama Fasilitator', 'Materi Diajarkan', 'Jumlah Menilai', 'Rata-rata Nilai']];
+    const data = [['Nama Fasilitator', 'Materi Diajarkan', 'Rata-rata Komponen Materi', 'Rata-rata Komponen Fasilitator', 'Jumlah Menilai Fasilitator']];
     rows.forEach(row => {
         if (row.style.display !== 'none') {
-            data.push([row.dataset.nama, row.dataset.materi, row.dataset.jumlah, row.dataset.rata]);
+            data.push([row.dataset.nama, row.dataset.materi, row.dataset.rataMateri, row.dataset.rataFasil, row.dataset.jumlahFasil]);
         }
     });
     const ws = XLSX.utils.aoa_to_sheet(data);

@@ -13,6 +13,35 @@
 <script>document.addEventListener('DOMContentLoaded', () => Swal.fire({icon: 'error', title: 'Gagal!', html: `{!! implode('<br>', $errors->all()) !!}`, customClass: {popup: 'rounded-2xl'}}));</script>
 @endif
 
+@php
+    // Pre-format angka dashboard agar Blade tidak bingung membaca koma
+    $fmtSeharusnya = number_format($totalSeharusnya, 0, ',', '.');
+    $fmtMasuk      = number_format($totalUangMasuk, 0, ',', '.');
+    $fmtLunas      = number_format($totalUangLunas, 0, ',', '.');
+    $fmtKurang     = number_format($totalUangKurang, 0, ',', '.');
+    $fmtBiaya      = number_format($event->biaya_pelatihan, 0, ',', '.');
+
+    // Filter Detail Item
+    $rawDetailItems = [
+        ['label' => 'Nama Pelatihan', 'value' => optional($event->pelatihan)->nama_pelatihan],
+        ['label' => 'Nama Event', 'value' => $event->nama_event],
+        ['label' => 'Batch / Tahun', 'value' => ($event->batch ? 'Batch '.$event->batch.' - ' : '').$event->tahun],
+        ['label' => 'Tipe / Jenis', 'value' => $event->tipe_pelatihan.' ('.$event->jenis_pelatihan.')'],
+        ['label' => 'Sistem / Lokasi', 'value' => $event->sistem_pelatihan.($event->lokasi ? ' - '.$event->lokasi : '')],
+        ['label' => 'Jadwal', 'value' => \Carbon\Carbon::parse($event->tanggal_mulai)->format('d M Y').' s/d '.\Carbon\Carbon::parse($event->tanggal_selesai)->format('d M Y')],
+        ['label' => 'SKP', 'value' => $event->skp ? $event->skp.' SKP' : null],
+        ['label' => 'Biaya Pelatihan', 'value' => 'Rp '.$fmtBiaya],
+        ['label' => 'Rekening Pembayaran', 'value' => $event->rekening_pembayaran],
+    ];
+    
+    $detailItems = [];
+    foreach($rawDetailItems as $item) {
+        if(!empty($item['value'])) {
+            $detailItems[] = $item;
+        }
+    }
+@endphp
+
 <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
     <div>
         <a href="{{ route('event.index') }}" class="text-xs font-bold text-slate-400 hover:text-[#1a365d] flex items-center gap-1 mb-2">
@@ -26,69 +55,52 @@
 
 <!-- ============ DASHBOARD REKAP KEUANGAN ============ -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <!-- Total Seharusnya (Estimasi Pendapatan) -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
         <div class="bg-indigo-100 text-indigo-600 p-3 rounded-xl">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"></path></svg>
         </div>
         <div>
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Total Seharusnya</p>
-            <p class="text-lg font-extrabold text-[#1a365d]">Rp {{ number_format($totalSeharusnya, 0, ',', '.') }}</p>
+            <p class="text-lg font-extrabold text-[#1a365d]">Rp {{ $fmtSeharusnya }}</p>
             <p class="text-[10px] font-bold text-indigo-400 mt-0.5">Dari {{ $pesertaAktifCount }} Peserta Aktif</p>
         </div>
     </div>
 
-    <!-- Total Uang Masuk Keseluruhan -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
         <div class="bg-blue-100 text-blue-600 p-3 rounded-xl">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         </div>
         <div>
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Total Uang Masuk</p>
-            <p class="text-lg font-extrabold text-[#1a365d]">Rp {{ number_format($totalUangMasuk, 0, ',', '.') }}</p>
+            <p class="text-lg font-extrabold text-[#1a365d]">Rp {{ $fmtMasuk }}</p>
             <p class="text-[10px] font-bold text-blue-400 mt-0.5">Total Realisasi Saat Ini</p>
         </div>
     </div>
 
-    <!-- Total Lunas -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
         <div class="bg-emerald-100 text-emerald-600 p-3 rounded-xl">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         </div>
         <div>
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Total Uang Lunas</p>
-            <p class="text-lg font-extrabold text-emerald-600">Rp {{ number_format($totalUangLunas, 0, ',', '.') }}</p>
+            <p class="text-lg font-extrabold text-emerald-600">Rp {{ $fmtLunas }}</p>
             <p class="text-[10px] font-bold text-emerald-500 mt-0.5">Dari {{ $countLunas }} Orang Lunas</p>
         </div>
     </div>
 
-    <!-- Total Kekurangan / Piutang -->
     <div onclick="bukaModalKurang()" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 cursor-pointer hover:bg-orange-50 hover:border-orange-200 transition duration-200 group" title="Klik untuk melihat peserta yang belum lunas">
         <div class="bg-orange-100 text-orange-600 p-3 rounded-xl group-hover:bg-orange-500 group-hover:text-white transition">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
         <div>
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Total Piutang</p>
-            <p class="text-lg font-extrabold text-orange-600">Rp {{ number_format($totalUangKurang, 0, ',', '.') }}</p>
+            <p class="text-lg font-extrabold text-orange-600">Rp {{ $fmtKurang }}</p>
             <p class="text-[10px] font-bold text-orange-500 mt-0.5 underline">Lihat {{ $countCicil }} Orang Cicil ➜</p>
         </div>
     </div>
 </div>
 
 <!-- ============ DETAIL PELATIHAN ============ -->
-@php
-    $detailItems = array_filter([
-        ['label' => 'Nama Pelatihan', 'value' => optional($event->pelatihan)->nama_pelatihan],
-        ['label' => 'Nama Event', 'value' => $event->nama_event],
-        ['label' => 'Batch / Tahun', 'value' => ($event->batch ? 'Batch '.$event->batch.' - ' : '').$event->tahun],
-        ['label' => 'Tipe / Jenis', 'value' => $event->tipe_pelatihan.' ('.$event->jenis_pelatihan.')'],
-        ['label' => 'Sistem / Lokasi', 'value' => $event->sistem_pelatihan.($event->lokasi ? ' - '.$event->lokasi : '')],
-        ['label' => 'Jadwal', 'value' => \Carbon\Carbon::parse($event->tanggal_mulai)->format('d M Y').' s/d '.\Carbon\Carbon::parse($event->tanggal_selesai)->format('d M Y')],
-        ['label' => 'SKP', 'value' => $event->skp ? $event->skp.' SKP' : null],
-        ['label' => 'Biaya Pelatihan', 'value' => 'Rp '.number_format($event->biaya_pelatihan, 0, ',', '.')],
-    ], fn($i) => !empty($i['value']));
-@endphp
-
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-6 mb-6">
     <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4">Detail Pelatihan</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -101,12 +113,11 @@
     </div>
 </div>
 
-<!-- ============ FILTER & PENCARIAN (STYLING BARU) ============ -->
+<!-- ============ FILTER & PENCARIAN ============ -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 md:p-6 mb-6">
     <div class="flex items-center justify-between mb-4">
         <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Pencarian & Filter Data</h3>
         
-        <!-- Tombol Unduh Data dipindah ke atas agar layout form rapi -->
         <button type="button" onclick="exportDataKeExcel()" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border border-emerald-200 hover:border-emerald-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             Export SheetJS
@@ -114,8 +125,6 @@
     </div>
 
     <form action="{{ route('event.pembayaran', $event->id) }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-        
-        <!-- Field Pencarian -->
         <div class="md:col-span-5">
             <label class="block text-xs font-bold text-slate-600 mb-2">Cari Nama, NIK, atau Email</label>
             <div class="relative">
@@ -126,7 +135,6 @@
             </div>
         </div>
 
-        <!-- Field Status -->
         <div class="md:col-span-3">
             <label class="block text-xs font-bold text-slate-600 mb-2">Status Pembayaran</label>
             <select name="status" class="w-full rounded-xl border-gray-200 text-sm py-2.5 focus:ring-[#1a365d] focus:border-[#1a365d] bg-slate-50 focus:bg-white transition-shadow cursor-pointer">
@@ -137,7 +145,6 @@
             </select>
         </div>
 
-        <!-- Field Urutkan -->
         <div class="md:col-span-2">
             <label class="block text-xs font-bold text-slate-600 mb-2">Urutan Daftar</label>
             <select name="sort" class="w-full rounded-xl border-gray-200 text-sm py-2.5 focus:ring-[#1a365d] focus:border-[#1a365d] bg-slate-50 focus:bg-white transition-shadow cursor-pointer">
@@ -146,7 +153,6 @@
             </select>
         </div>
 
-        <!-- Tombol Terapkan -->
         <div class="md:col-span-2">
             <button type="submit" class="w-full bg-[#1a365d] text-white py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-[#122643] transition-colors flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
@@ -167,6 +173,8 @@
                 <tr class="bg-white text-[#1a365d] text-xs uppercase tracking-wider border-b border-gray-100">
                     <th class="p-4 font-extrabold">Peserta</th>
                     <th class="p-4 font-extrabold">Instansi</th>
+                    <th class="p-4 font-extrabold">WhatsApp</th>
+                    <th class="p-4 font-extrabold">Bukti Bayar</th>
                     <th class="p-4 font-extrabold text-center">Status Pendaftaran</th>
                     <th class="p-4 font-extrabold text-center">Status Pembayaran</th>
                     <th class="p-4 font-extrabold">Rincian Bayar</th>
@@ -175,67 +183,121 @@
             </thead>
             <tbody class="text-gray-700 text-sm">
                 @forelse($pesertas as $p)
-                <!-- TR Row Bisa Di Klik -> Memanggil fungsi lihatDetailPeserta() -->
-               <tr class="hover:bg-blue-50/50 cursor-pointer transition-colors border-b border-gray-50 align-top group" 
-    data-detail="{{ json_encode($p) }}" 
-    onclick="lihatDetailPeserta(this)">
+                @php
+                    $namaLengkap = trim($p->gelar_depan . ' ' . $p->nama . ' ' . $p->gelar_belakang);
+                    
+                    $badgeDaftar = 'bg-gray-100 text-gray-700';
+                    if($p->status_pendaftaran === 'Menunggu') $badgeDaftar = 'bg-amber-100 text-amber-700 border-amber-200';
+                    elseif($p->status_pendaftaran === 'Diterima') $badgeDaftar = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                    elseif($p->status_pendaftaran === 'Ditolak') $badgeDaftar = 'bg-red-100 text-red-600 border-red-200';
+
+                    $badgeBayar = 'bg-gray-100 text-gray-700';
+                    if($p->status_pembayaran === 'Belum Bayar') $badgeBayar = 'bg-slate-100 text-slate-500 border-slate-200';
+                    elseif($p->status_pembayaran === 'Cicil') $badgeBayar = 'bg-orange-100 text-orange-700 border-orange-200';
+                    elseif($p->status_pembayaran === 'Lunas') $badgeBayar = 'bg-emerald-100 text-emerald-700 border-emerald-200';
+
+                    $sisaKurang = max($event->biaya_pelatihan - $p->total_dibayar, 0);
+                    
+                    // Formatting yang AMAN dari bentrok compiler Blade
+                    $fmtTotalDibayar = number_format($p->total_dibayar, 0, ',', '.');
+                    $fmtSisaKurang   = number_format($sisaKurang, 0, ',', '.');
+                    
+                    // Escape string untuk dikirim ke fungsi Javascript (Mencegah XSS dan error tanda kutip)
+                    $escNama = htmlspecialchars($p->nama ?? '', ENT_QUOTES);
+                    $escInst = htmlspecialchars($p->instansi ?? '', ENT_QUOTES);
+                    $escDept = htmlspecialchars($p->departemen ?? '', ENT_QUOTES);
+                    $escMail = htmlspecialchars($p->email_plataran_sehat ?? '', ENT_QUOTES);
+                    $escWa   = htmlspecialchars($p->no_whatsapp ?? '', ENT_QUOTES);
+                    $linkBayar = $p->link_pembayaran ?? '';
+                @endphp
+
+                <!-- Baris Tr -->
+                <tr class="hover:bg-blue-50/50 cursor-pointer transition-colors border-b border-gray-50 align-top group" 
+                    data-detail="{{ $p->toJson() }}" 
+                    onclick="lihatDetailPeserta(this)">
                     
                     <td class="p-4 relative">
                         <div class="font-extrabold text-slate-800 group-hover:text-blue-700 transition-colors">
-                            {{ trim($p->gelar_depan . ' ' . $p->nama . ' ' . $p->gelar_belakang) }}
+                            {{ $namaLengkap }}
                         </div>
                         <div class="text-xs text-gray-400 mt-0.5">{{ $p->email_plataran_sehat }}</div>
                         <div class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-gray-500 inline-block mt-1 border border-slate-200">
                             NIK: {{ $p->nik }}
                         </div>
                     </td>
+
                     <td class="p-4">
                         <div class="font-bold text-slate-700">{{ $p->instansi }}</div>
                         <div class="text-xs text-gray-400">{{ $p->departemen ?? '-' }}</div>
                     </td>
-                    <td class="p-4 text-center">
-                        @php
-                            $b = [
-                                'Menunggu' => 'bg-amber-100 text-amber-700 border-amber-200',
-                                'Diterima' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                                'Ditolak'  => 'bg-red-100 text-red-600 border-red-200',
-                            ][$p->status_pendaftaran] ?? 'bg-gray-100 text-gray-700';
-                        @endphp
-                        <span class="text-xs font-bold px-2.5 py-1 rounded-full border {{ $b }}">{{ $p->status_pendaftaran }}</span>
+
+                    <td class="p-4" onclick="event.stopPropagation()">
+                        @if($p->no_whatsapp)
+                        <a href="{{ $p->link_whatsapp }}" target="_blank" class="text-xs font-bold text-emerald-600 hover:underline flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 004.79 1.22h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.65-1.03-5.13-2.9-7-1.87-1.87-4.35-2.9-7-2.9zm0 18.06h-.01a8.2 8.2 0 01-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 01-1.26-4.36c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.19 8.19 0 012.41 5.83c0 4.55-3.7 8.21-8.24 8.21z"/></svg>
+                            {{ $p->no_whatsapp }}
+                        </a>
+                        @else
+                        <span class="text-xs text-gray-400">-</span>
+                        @endif
                     </td>
-                    <td class="p-4 text-center">
-                        @php
-                            $bb = [
-                                'Belum Bayar' => 'bg-slate-100 text-slate-500 border-slate-200',
-                                'Cicil' => 'bg-orange-100 text-orange-700 border-orange-200',
-                                'Lunas' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                            ][$p->status_pembayaran] ?? 'bg-gray-100';
-                        @endphp
-                        <span class="text-xs font-bold px-2.5 py-1 rounded-full border {{ $bb }}">{{ $p->status_pembayaran }}</span>
+
+                    <td class="p-4" onclick="event.stopPropagation()">
+                        <div class="flex flex-col gap-1.5">
+                            @if($p->bukti_bayar_pertama)
+                            <a href="{{ asset('storage/'.$p->bukti_bayar_pertama) }}" target="_blank" class="text-xs font-bold text-blue-600 hover:underline">Bukti Awal</a>
+                            @else
+                            <span class="text-xs text-gray-400">Bukti awal: -</span>
+                            @endif
+                            
+                            @if($p->bukti_bayar_terakhir)
+                            <a href="{{ asset('storage/'.$p->bukti_bayar_terakhir) }}" target="_blank" class="text-xs font-bold text-emerald-600 hover:underline">Bukti Pelunasan</a>
+                            @endif
+                        </div>
                     </td>
+
+                    <td class="p-4 text-center">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full border {{ $badgeDaftar }}">{{ $p->status_pendaftaran }}</span>
+                    </td>
+
+                    <td class="p-4 text-center">
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full border {{ $badgeBayar }}">{{ $p->status_pembayaran }}</span>
+                    </td>
+
                     <td class="p-4">
-                        <div class="text-xs font-bold text-slate-700">Dibayar: Rp {{ number_format($p->total_dibayar, 0, ',', '.') }}</div>
+                        <div class="text-xs font-bold text-slate-700">Dibayar: Rp {{ $fmtTotalDibayar }}</div>
                         @if($p->status_pembayaran === 'Cicil')
-                        <div class="text-xs font-bold text-orange-600 mt-0.5">Kurang: Rp {{ number_format(max($event->biaya_pelatihan - $p->total_dibayar, 0), 0, ',', '.') }}</div>
+                        <div class="text-xs font-bold text-orange-600 mt-0.5">Kurang: Rp {{ $fmtSisaKurang }}</div>
                         @endif
                     </td>
                     
-                    <!-- Kolom Aksi -> onclick="event.stopPropagation()" agar klik tombol tidak memicu Modal Detail Peserta -->
                     <td class="p-4" onclick="event.stopPropagation()">
-                        <div class="flex flex-col gap-1.5 items-stretch w-40">
+                        <div class="flex flex-col gap-1.5 items-stretch w-44">
                             @if($p->status_pendaftaran === 'Menunggu')
-                                <button type="button" onclick="accPeserta('{{ $p->id }}', {{ $event->biaya_pelatihan }})" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-bold shadow-sm transition-colors">ACC Pendaftaran</button>
-                                <button type="button" onclick="tolakPeserta('{{ $p->id }}', '{{ addslashes($p->nama) }}')" class="bg-red-50 hover:bg-red-500 hover:text-white text-red-600 px-3 py-2 rounded-lg text-xs font-bold border border-red-200 transition-colors">Tolak</button>
+                                <button type="button" onclick="accPeserta('{{ $p->id }}', '{{ $event->biaya_pelatihan }}')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-bold shadow-sm transition-colors">ACC Pendaftaran</button>
+                                <button type="button" onclick="tolakPeserta('{{ $p->id }}', '{{ $escNama }}')" class="bg-red-50 hover:bg-red-500 hover:text-white text-red-600 px-3 py-2 rounded-lg text-xs font-bold border border-red-200 transition-colors">Tolak</button>
+                            
                             @elseif($p->status_pendaftaran === 'Diterima' && $p->status_pembayaran === 'Cicil')
-                                @php $sisa = max($event->biaya_pelatihan - $p->total_dibayar, 0); @endphp
-                                <button type="button" onclick="copyLinkPelunasan('{{ $p->link_pembayaran ?? '' }}')" class="bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 px-3 py-2 rounded-lg text-xs font-bold border border-blue-200 transition-colors">Salin Link Pelunasan</button>
-                                <button type="button" onclick="updateCicilan('{{ $p->id }}', {{ $event->biaya_pelatihan }}, {{ $sisa }})" class="bg-amber-50 hover:bg-amber-500 hover:text-white text-amber-700 px-3 py-2 rounded-lg text-xs font-bold border border-amber-200 transition-colors">Update Kekurangan</button>
-                                <button type="button" onclick="tandaiLunas('{{ $p->id }}', '{{ addslashes($p->nama) }}')" class="bg-emerald-50 hover:bg-emerald-500 hover:text-white text-emerald-700 px-3 py-2 rounded-lg text-xs font-bold border border-emerald-200 transition-colors">Tandai Lunas</button>
+                                <button type="button" onclick="copyToClipboard('{{ $linkBayar }}')" class="bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 px-3 py-2 rounded-lg text-xs font-bold border border-blue-200 transition-colors">Salin Link Pelunasan</button>
+                                
+                                @if($p->no_whatsapp)
+                                <button type="button" onclick="kirimWaPembayaran('{{ $escWa }}', '{{ $escNama }}', '{{ $linkBayar }}', '{{ $fmtSisaKurang }}')" class="bg-emerald-50 hover:bg-emerald-500 hover:text-white text-emerald-700 px-3 py-2 rounded-lg text-xs font-bold border border-emerald-200 transition-colors">Kirim via WA</button>
+                                @endif
+                                
+                                <button type="button" onclick="updateCicilan('{{ $p->id }}', '{{ $event->biaya_pelatihan }}', '{{ $sisaKurang }}')" class="bg-amber-50 hover:bg-amber-500 hover:text-white text-amber-700 px-3 py-2 rounded-lg text-xs font-bold border border-amber-200 transition-colors">Update Kekurangan</button>
+                                <button type="button" onclick="tandaiLunas('{{ $p->id }}', '{{ $escNama }}')" class="bg-emerald-50 hover:bg-emerald-500 hover:text-white text-emerald-700 px-3 py-2 rounded-lg text-xs font-bold border border-emerald-200 transition-colors">Tandai Lunas</button>
+                            
                             @elseif($p->status_pendaftaran === 'Diterima' && $p->status_pembayaran === 'Lunas')
                                 <span class="text-xs font-bold text-emerald-600 text-center py-2 bg-emerald-50 rounded-lg border border-emerald-100">✔ Selesai Lunas</span>
+                            
                             @elseif($p->status_pendaftaran === 'Ditolak')
                                 <span class="text-xs font-bold text-gray-400 text-center py-2 bg-gray-50 rounded-lg border border-gray-200">Ditolak</span>
                             @endif
+
+                            <div class="flex gap-1.5 pt-1 border-t border-gray-100 mt-1">
+                                <button type="button" onclick="bukaEditPeserta('{{ $p->id }}', '{{ $escNama }}', '{{ $escInst }}', '{{ $escDept }}', '{{ $escMail }}', '{{ $escWa }}')" class="flex-1 bg-slate-50 hover:bg-slate-600 hover:text-white text-slate-600 px-2 py-1.5 rounded-lg text-[11px] font-bold border border-slate-200">Edit</button>
+                                <button type="button" onclick="hapusPeserta('{{ $p->id }}', '{{ $escNama }}')" class="flex-1 bg-red-50 hover:bg-red-600 hover:text-white text-red-500 px-2 py-1.5 rounded-lg text-[11px] font-bold border border-red-200">Hapus</button>
+                            </div>
                         </div>
 
                         <!-- Form Aksi Hidden -->
@@ -248,11 +310,12 @@
                             @csrf <input type="hidden" name="kekurangan" id="update-kekurangan-{{ $p->id }}">
                         </form>
                         <form id="lunas-form-{{ $p->id }}" action="{{ route('registrasi.lunas', $p->id) }}" method="POST" class="hidden">@csrf</form>
+                        <form id="hapus-form-{{ $p->id }}" action="{{ route('registrasi.hapus', $p->id) }}" method="POST" class="hidden">@csrf @method('DELETE')</form>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="py-16 text-center">
+                    <td colspan="8" class="py-16 text-center">
                         <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <p class="text-gray-500 font-bold text-lg">Tidak ada data ditemukan</p>
                         <p class="text-gray-400 text-sm">Coba sesuaikan kata kunci atau filter pencarian.</p>
@@ -298,6 +361,9 @@
                     </thead>
                     <tbody>
                         @forelse($pesertaKurang as $pk)
+                        @php
+                            $pkSisa = max($event->biaya_pelatihan - $pk->total_dibayar, 0);
+                        @endphp
                         <tr class="border-b border-gray-50 item-piutang hover:bg-orange-50/30 transition-colors">
                             <td class="p-4">
                                 <div class="font-bold text-slate-800 nama-peserta">{{ trim($pk->gelar_depan . ' ' . $pk->nama . ' ' . $pk->gelar_belakang) }}</div>
@@ -307,7 +373,7 @@
                                 {{ $pk->email_plataran_sehat }}
                             </td>
                             <td class="p-4 text-emerald-600 font-extrabold">Rp {{ number_format($pk->total_dibayar, 0, ',', '.') }}</td>
-                            <td class="p-4 text-orange-600 font-extrabold">Rp {{ number_format(max($event->biaya_pelatihan - $pk->total_dibayar, 0), 0, ',', '.') }}</td>
+                            <td class="p-4 text-orange-600 font-extrabold">Rp {{ number_format($pkSisa, 0, ',', '.') }}</td>
                         </tr>
                         @empty
                         <tr><td colspan="4" class="text-center py-10 text-gray-500 font-bold">Tidak ada peserta yang menunggak cicilan.</td></tr>
@@ -326,7 +392,6 @@
 <div id="modalDetailPeserta" class="fixed inset-0 bg-slate-900/70 hidden z-[70] flex items-center justify-center p-4 backdrop-blur-md transition-opacity">
     <div class="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
-        <!-- Header Modal -->
         <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-[#1a365d] to-[#254f8a] text-white flex justify-between items-center relative overflow-hidden">
             <div class="absolute right-0 top-0 opacity-10">
                 <svg class="w-32 h-32 transform translate-x-8 -translate-y-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
@@ -341,13 +406,9 @@
             <button onclick="tutupModalDetail()" class="relative z-10 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 w-10 h-10 rounded-full flex items-center justify-center transition-colors">&times;</button>
         </div>
         
-        <!-- Body Modal -->
         <div class="overflow-y-auto p-6 flex-1 bg-slate-50/50">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                <!-- Kolom 1: Data Pribadi & Pekerjaan -->
                 <div class="space-y-6">
-                    <!-- Section Personal -->
                     <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                         <h4 class="text-xs font-extrabold text-blue-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -361,7 +422,6 @@
                         </div>
                     </div>
 
-                    <!-- Section Pekerjaan -->
                     <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                         <h4 class="text-xs font-extrabold text-indigo-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
@@ -376,9 +436,7 @@
                     </div>
                 </div>
 
-                <!-- Kolom 2: Kontak & Pembayaran -->
                 <div class="space-y-6">
-                    <!-- Section Kontak -->
                     <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                         <h4 class="text-xs font-extrabold text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
@@ -386,10 +444,10 @@
                         </h4>
                         <div class="space-y-3">
                             <div><p class="text-[10px] text-gray-400 font-bold uppercase">Email Plataran Sehat</p><p class="text-sm font-bold text-slate-800" id="mdl-email">-</p></div>
+                            <div><p class="text-[10px] text-gray-400 font-bold uppercase">WhatsApp</p><p class="text-sm font-bold text-slate-800" id="mdl-wa">-</p></div>
                         </div>
                     </div>
 
-                    <!-- Section Pembayaran -->
                     <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                         <h4 class="text-xs font-extrabold text-orange-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -409,15 +467,11 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">Bukti Bayar (Awal)</p>
-                                <div id="container-bukti-1">
-                                    <!-- Diisi via JS -->
-                                </div>
+                                <div id="container-bukti-1"></div>
                             </div>
                             <div>
                                 <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">Bukti Pelunasan (Akhir)</p>
-                                <div id="container-bukti-2">
-                                    <!-- Diisi via JS -->
-                                </div>
+                                <div id="container-bukti-2"></div>
                             </div>
                         </div>
                     </div>
@@ -433,7 +487,47 @@
     </div>
 </div>
 
+<!-- ============ FORM EDIT PESERTA ============ -->
+<form id="quick-edit-form" method="POST" class="hidden">
+    @csrf @method('PUT')
+    <input type="hidden" name="nama" id="edit-nama">
+    <input type="hidden" name="instansi" id="edit-instansi">
+    <input type="hidden" name="departemen" id="edit-departemen">
+    <input type="hidden" name="email_plataran_sehat" id="edit-email">
+    <input type="hidden" name="no_whatsapp" id="edit-wa">
+</form>
+
 <script>
+// ---------- FUNGSI ROBUST COPY TO CLIPBOARD ----------
+function copyToClipboard(text, successMsg = 'Link pelunasan tersalin ke clipboard!') {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => toastSukses(successMsg)).catch(() => fallbackCopy(text, successMsg));
+    } else {
+        fallbackCopy(text, successMsg);
+    }
+}
+
+function fallbackCopy(text, successMsg) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+        document.execCommand('copy');
+        toastSukses(successMsg);
+    } catch (e) {
+        Swal.fire({ icon: 'info', title: 'Salin Manual', html: `Browser tidak izinkan salin otomatis. Salin teks berikut:<br><br><code class="text-xs break-all">${text}</code>`, confirmButtonColor: '#1a365d' });
+    }
+    document.body.removeChild(ta);
+}
+
+function toastSukses(msg) {
+    Swal.fire({ icon: 'success', title: 'Berhasil!', text: msg, timer: 2000, showConfirmButton: false, toast: true, position: 'top-end', customClass: { popup: 'rounded-xl' } });
+}
+
 // ---------- FUNGSI DETAIL PESERTA (KLIK ROW) ----------
 function formatRupiah(angka) {
     return 'Rp ' + parseInt(angka).toLocaleString('id-ID');
@@ -447,35 +541,29 @@ function formatDateIndo(dateString) {
 }
 
 function lihatDetailPeserta(element) {
-    // Parsing data dari atribut data-detail di elemen <tr>
     const data = JSON.parse(element.getAttribute('data-detail'));
     const biayaPelatihan = {{ $event->biaya_pelatihan }};
     
-    // Set Nama Lengkap
     let gelarDepan = data.gelar_depan ? data.gelar_depan + ' ' : '';
     let gelarBelakang = data.gelar_belakang ? ' ' + data.gelar_belakang : '';
     document.getElementById('mdl-nama-lengkap').innerText = gelarDepan + data.nama + gelarBelakang;
 
-    // Set Status
     document.getElementById('mdl-status-daftar').innerText = data.status_pendaftaran;
     document.getElementById('mdl-status-bayar').innerText = data.status_pembayaran;
 
-    // Set Data Pribadi
     document.getElementById('mdl-nik').innerText = data.nik || '-';
     document.getElementById('mdl-ttl').innerText = (data.tempat_lahir || '-') + ', ' + formatDateIndo(data.tanggal_lahir);
     document.getElementById('mdl-alamat').innerText = data.alamat_lengkap || '-';
     document.getElementById('mdl-kaos').innerText = data.ukuran_kaos ? 'Ukuran ' + data.ukuran_kaos.toUpperCase() : '-';
 
-    // Set Data Pekerjaan
     document.getElementById('mdl-instansi').innerText = data.instansi || '-';
     document.getElementById('mdl-departemen').innerText = data.departemen || '-';
     document.getElementById('mdl-nip').innerText = data.nip || '-';
     document.getElementById('mdl-pangkat').innerText = data.pangkat_golongan || '-';
 
-    // Set Kontak
     document.getElementById('mdl-email').innerText = data.email_plataran_sehat || '-';
+    document.getElementById('mdl-wa').innerText = data.no_whatsapp || '-';
 
-    // Set Pembayaran
     document.getElementById('mdl-uang-masuk').innerText = formatRupiah(data.total_dibayar);
     
     let kurang = 0;
@@ -486,7 +574,6 @@ function lihatDetailPeserta(element) {
     }
     document.getElementById('mdl-uang-kurang').innerText = formatRupiah(kurang);
 
-    // Set Bukti Bayar 1
     const container1 = document.getElementById('container-bukti-1');
     if (data.bukti_bayar_pertama) {
         let url1 = `{{ asset('storage') }}/${data.bukti_bayar_pertama}`;
@@ -495,7 +582,6 @@ function lihatDetailPeserta(element) {
         container1.innerHTML = `<div class="w-full h-24 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400 font-bold border-dashed">Belum Ada</div>`;
     }
 
-    // Set Bukti Bayar 2
     const container2 = document.getElementById('container-bukti-2');
     if (data.bukti_bayar_terakhir) {
         let url2 = `{{ asset('storage') }}/${data.bukti_bayar_terakhir}`;
@@ -504,18 +590,15 @@ function lihatDetailPeserta(element) {
         container2.innerHTML = `<div class="w-full h-24 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-400 font-bold border-dashed">Belum Ada</div>`;
     }
 
-    // Waktu Daftar
     let tglDaftar = new Date(data.created_at);
     document.getElementById('mdl-waktu-daftar').innerText = "Waktu Daftar: " + tglDaftar.toLocaleString('id-ID');
 
-    // Tampilkan Modal
     document.getElementById('modalDetailPeserta').classList.remove('hidden');
 }
 
 function tutupModalDetail() {
     document.getElementById('modalDetailPeserta').classList.add('hidden');
 }
-
 
 // ---------- FUNGSI PENCARIAN DI MODAL PIUTANG ----------
 function cariPiutang() {
@@ -534,7 +617,9 @@ function cariPiutang() {
 
 // ---------- EXPORT SHEETJS ----------
 function exportDataKeExcel() {
-    const dataRaw = @json($semuaDataExport);
+    // Penggunaan Raw String literal jauh lebih aman
+    const dataRaw = {!! json_encode($semuaDataExport) !!};
+    
     if(dataRaw.length === 0) {
         Swal.fire('Gagal!', 'Tidak ada data untuk diunduh.', 'error'); return;
     }
@@ -547,6 +632,7 @@ function exportDataKeExcel() {
             'Nama Lengkap': namaLengkap,
             'NIK': p.nik,
             'Email': p.email_plataran_sehat,
+            'WhatsApp': p.no_whatsapp,
             'Instansi': p.instansi,
             'Status Pendaftaran': p.status_pendaftaran,
             'Status Pembayaran': p.status_pembayaran,
@@ -560,11 +646,9 @@ function exportDataKeExcel() {
     XLSX.writeFile(workbook, "Laporan_Pembayaran_{{ Str::slug($event->nama_event) }}.xlsx");
 }
 
-// ---------- MODAL UANG KURANG ----------
 function bukaModalKurang() { document.getElementById('modalKurang').classList.remove('hidden'); }
 function tutupModalKurang() { document.getElementById('modalKurang').classList.add('hidden'); }
 
-// ---------- FORMAT ANGKA (TITIK) ----------
 function terapkanFormatRibuan(inputElement) {
     inputElement.addEventListener('input', function(e) {
         let nilai = this.value.replace(/[^0-9]/g, '');
@@ -572,7 +656,6 @@ function terapkanFormatRibuan(inputElement) {
     });
 }
 
-// ---------- FUNGSI AKSI PESERTA ----------
 function accPeserta(id, biaya) {
     Swal.fire({
         title: 'Terima Pendaftaran Peserta',
@@ -653,9 +736,57 @@ function tandaiLunas(id, nama) {
     }).then((result) => { if (result.isConfirmed) document.getElementById('lunas-form-' + id).submit(); });
 }
 
-function copyLinkPelunasan(link) {
-    navigator.clipboard.writeText(link).then(() => {
-        Swal.fire({ icon: 'success', title: 'Tersalin!', text: 'Link disalin ke clipboard.', timer: 2000, showConfirmButton: false, toast: true, position: 'top-end', customClass: { popup: 'rounded-xl' } });
+function kirimWaPembayaran(noWa, nama, link, kekurangan) {
+    const pesan = `Halo ${nama},\n\nMohon segera melakukan pelunasan sisa pembayaran pelatihan sebesar Rp ${kekurangan}.\nSilakan upload bukti pembayaran melalui link berikut:\n${link}\n\nTerima kasih.`;
+    window.open(`https://wa.me/${noWa}?text=${encodeURIComponent(pesan)}`, '_blank');
+}
+
+function hapusPeserta(id, nama) {
+    Swal.fire({
+        title: 'Hapus Peserta?',
+        html: `Semua data <b>${nama}</b> (pendaftaran, absensi, evaluasi) akan dihapus permanen. Lanjutkan?`,
+        icon: 'warning', showCancelButton: true,
+        confirmButtonText: 'Ya, Hapus', confirmButtonColor: '#ef4444', cancelButtonText: 'Batal',
+        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl px-6 py-2.5 font-bold', cancelButton: 'rounded-xl px-6 py-2.5 font-bold' }
+    }).then((result) => { if (result.isConfirmed) document.getElementById('hapus-form-' + id).submit(); });
+}
+
+// ================= EDIT PESERTA SCRIPT =================
+function bukaEditPeserta(id, nama, instansi, departemen, email, wa) {
+    Swal.fire({
+        title: 'Edit Data Peserta',
+        html: `
+            <div class="text-left space-y-3 mt-4">
+                <div><label class="text-xs font-bold text-gray-500 block mb-1">Nama</label><input id="swal-nama" class="swal2-input m-0 w-full" value="${nama ?? ''}"></div>
+                <div><label class="text-xs font-bold text-gray-500 block mb-1">Instansi</label><input id="swal-instansi" class="swal2-input m-0 w-full" value="${instansi ?? ''}"></div>
+                <div><label class="text-xs font-bold text-gray-500 block mb-1">Departemen</label><input id="swal-departemen" class="swal2-input m-0 w-full" value="${departemen ?? ''}"></div>
+                <div><label class="text-xs font-bold text-gray-500 block mb-1">Email</label><input id="swal-email" class="swal2-input m-0 w-full" value="${email ?? ''}"></div>
+                <div><label class="text-xs font-bold text-gray-500 block mb-1">No. WhatsApp</label><input id="swal-wa" class="swal2-input m-0 w-full" value="${wa ?? ''}" placeholder="62812xxxx"></div>
+            </div>
+        `,
+        showCancelButton: true, confirmButtonText: 'Simpan', confirmButtonColor: '#1a365d', cancelButtonText: 'Batal',
+        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl px-6 py-2.5 font-bold', cancelButton: 'rounded-xl px-6 py-2.5 font-bold' },
+        preConfirm: () => {
+            return {
+                nama: document.getElementById('swal-nama').value,
+                instansi: document.getElementById('swal-instansi').value,
+                departemen: document.getElementById('swal-departemen').value,
+                email: document.getElementById('swal-email').value,
+                wa: document.getElementById('swal-wa').value,
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const v = result.value;
+            const form = document.getElementById('quick-edit-form');
+            form.action = `{{ url('/registrasi') }}/${id}/quick-edit`;
+            document.getElementById('edit-nama').value = v.nama;
+            document.getElementById('edit-instansi').value = v.instansi;
+            document.getElementById('edit-departemen').value = v.departemen;
+            document.getElementById('edit-email').value = v.email;
+            document.getElementById('edit-wa').value = v.wa;
+            form.submit();
+        }
     });
 }
 </script>

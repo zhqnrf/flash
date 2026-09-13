@@ -14,4 +14,9 @@ class LandingController extends Controller
 
         return view('landing', compact('events'));
     }
+    public function validasiEvent($uuid)
+{
+    $event = \App\Models\Event::where('uuid', $uuid)->firstOrFail();
+    return view('public.event.validasi', compact('event'));
+}
 }

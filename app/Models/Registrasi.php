@@ -21,31 +21,31 @@ class Registrasi extends Model
         });
     }
 
-    // Relasi ke Event
     public function event()
     {
         return $this->belongsTo(Event::class, 'event_id');
     }
 
-    // Relasi ke Absensi (1 peserta bisa punya beberapa absen, 1 per hari pelatihan)
     public function absensis()
     {
         return $this->hasMany(Absensi::class);
     }
 
-    // Relasi ke jawaban Evaluasi Pelatihan yang diisi peserta ini
     public function evaluasiPelatihanJawabans()
     {
         return $this->hasMany(EvaluasiPelatihanJawaban::class);
     }
 
-    // Relasi ke jawaban Evaluasi Fasilitator yang diisi peserta ini
     public function evaluasiFasilitatorJawabans()
     {
         return $this->hasMany(EvaluasiFasilitatorJawaban::class);
     }
 
-    // Accessor untuk gabung nama lengkap + gelar otomatis
+    public function evaluasiMateriJawabans()
+    {
+        return $this->hasMany(EvaluasiMateriJawaban::class);
+    }
+
     public function getNamaLengkapAttribute()
     {
         $depan = $this->gelar_depan ? $this->gelar_depan . ' ' : '';
@@ -53,20 +53,20 @@ class Registrasi extends Model
         return $depan . $this->nama . $belakang;
     }
 
-    // Sisa kekurangan pembayaran = biaya pelatihan - total yang sudah dibayar
     public function getKekuranganAttribute()
     {
         $biaya = optional($this->event)->biaya_pelatihan ?? 0;
         return max($biaya - $this->total_dibayar, 0);
     }
 
-    // Link publik untuk peserta upload bukti pelunasan cicilan
     public function getLinkPembayaranAttribute()
     {
         return route('pembayaran.public', $this->uuid);
     }
+
+    // Link chat WhatsApp langsung ke nomor peserta
     public function getLinkWhatsappAttribute()
-{
-    return $this->no_whatsapp ? 'https://wa.me/' . $this->no_whatsapp : null;
-}
+    {
+        return $this->no_whatsapp ? 'https://wa.me/' . $this->no_whatsapp : null;
+    }
 }

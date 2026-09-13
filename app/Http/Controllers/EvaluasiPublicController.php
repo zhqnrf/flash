@@ -9,6 +9,7 @@ use App\Models\EvaluasiPelatihan;
 use App\Models\EvaluasiFasilitator;
 use App\Models\EvaluasiPelatihanJawaban;
 use App\Models\EvaluasiFasilitatorJawaban;
+use App\Models\EvaluasiMateriJawaban;
 use Illuminate\Http\Request;
 
 class EvaluasiPublicController extends Controller
@@ -35,7 +36,6 @@ class EvaluasiPublicController extends Controller
                 'sudah_isi' => $sudahIsiIds->contains($p->id),
             ]);
 
-        // Kriteria evaluasi pelatihan: spesifik pelatihan ini + kriteria global
         $kriteria = EvaluasiPelatihan::where(function ($q) use ($event) {
             $q->where('pelatihan_id', $event->pelatihan_id)->orWhereNull('pelatihan_id');
         })->orderBy('id')->get();
@@ -55,7 +55,7 @@ class EvaluasiPublicController extends Controller
                 ];
             })->values();
 
-        // Map: registrasi_id => [fasilitator_id yang sudah dievaluasi]
+        // Map: registrasi_id => [fasilitator_id yang KOMPONEN FASILITATOR-nya sudah dievaluasi]
         $evaluatedMap = EvaluasiFasilitatorJawaban::where('event_id', $event->id)
             ->get()
             ->groupBy('registrasi_id')
@@ -105,8 +105,18 @@ class EvaluasiPublicController extends Controller
         return back()->with('success', 'Terima kasih, ' . $registrasi->nama_lengkap . '! Evaluasi pelatihan Anda berhasil disimpan.');
     }
 
+    // Admin: hapus evaluasi pelatihan seorang peserta (supaya bisa isi ulang)
+    public function hapusEvaluasiPelatihan(Registrasi $registrasi)
+    {
+        EvaluasiPelatihanJawaban::where('registrasi_id', $registrasi->id)->delete();
+        return back()->with('success', 'Evaluasi pelatihan atas nama ' . $registrasi->nama_lengkap . ' berhasil dihapus.');
+    }
+
     // ================================================================
     // HALAMAN EVALUASI KHUSUS 1 FASILITATOR
+    // Terdiri dari 2 komponen terpisah:
+    //  1) Komponen MATERI (dari master EvaluasiMateri) -> dinilai PER MATERI, digate per tanggal_sesi
+    //  2) Komponen FASILITATOR (dari master EvaluasiFasilitator) -> dinilai 1x saja per fasilitator
     // ================================================================
     public function createFasilitator($uuid, $fasilitatorId)
     {
@@ -123,12 +133,16 @@ class EvaluasiPublicController extends Controller
                 'instansi' => $p->instansi,
             ]);
 
-        $kriteria = EvaluasiFasilitator::where(function ($q) use ($event) {
+        // ---- Komponen Fasilitator: kriteria + siapa saja yang SUDAH menilai (1x per peserta) ----
+        $kriteriaFasilitator = EvaluasiFasilitator::where(function ($q) use ($event) {
             $q->where('pelatihan_id', $event->pelatihan_id)->orWhereNull('pelatihan_id');
         })->orderBy('id')->get();
 
-        // Materi yang diajarkan fasilitator ini pada event ini, HANYA yang sudah "waktunya"
-        // (tanggal_sesi kosong dianggap selalu tersedia, untuk kompatibilitas data lama)
+        $sudahNilaiFasilitatorIds = EvaluasiFasilitatorJawaban::where('event_id', $event->id)
+            ->where('fasilitator_id', $fasilitator->id)
+            ->pluck('registrasi_id')->unique();
+
+        // ---- Komponen Materi: daftar materi yang sudah "waktunya" (tanggal_sesi <= hari ini) ----
         $hariIni = now()->toDateString();
         $materiTersedia = $event->eventFasilitatorMateris()
             ->where('fasilitator_id', $fasilitator->id)
@@ -139,6 +153,8 @@ class EvaluasiPublicController extends Controller
             ->map(fn($efm) => [
                 'id' => $efm->evaluasi_materi_id,
                 'nama' => $efm->evaluasiMateri->nama_materi,
+                'rentang_min' => $efm->evaluasiMateri->rentang_nilai_min,
+                'rentang_max' => $efm->evaluasiMateri->rentang_nilai_max,
                 'tanggal_sesi' => optional($efm->tanggal_sesi)->translatedFormat('d M Y'),
             ])->values();
 
@@ -147,8 +163,8 @@ class EvaluasiPublicController extends Controller
             ->distinct('evaluasi_materi_id')
             ->count('evaluasi_materi_id');
 
-        // Map: registrasi_id => [evaluasi_materi_id yang SUDAH dinilai peserta itu, utk fasilitator ini]
-        $sudahDinilaiMap = EvaluasiFasilitatorJawaban::where('event_id', $event->id)
+        // Map: registrasi_id => [evaluasi_materi_id yang SUDAH dinilai peserta itu]
+        $sudahDinilaiMateriMap = EvaluasiMateriJawaban::where('event_id', $event->id)
             ->where('fasilitator_id', $fasilitator->id)
             ->get()
             ->groupBy('registrasi_id')
@@ -157,7 +173,10 @@ class EvaluasiPublicController extends Controller
         $initialRegistrasiId = request()->query('registrasi');
 
         return view('public.evaluasi.fasilitator', compact(
-            'event', 'fasilitator', 'pesertas', 'kriteria', 'materiTersedia', 'totalMateriKeseluruhan', 'sudahDinilaiMap', 'initialRegistrasiId'
+            'event', 'fasilitator', 'pesertas',
+            'kriteriaFasilitator', 'sudahNilaiFasilitatorIds',
+            'materiTersedia', 'totalMateriKeseluruhan', 'sudahDinilaiMateriMap',
+            'initialRegistrasiId'
         ));
     }
 
@@ -168,11 +187,11 @@ class EvaluasiPublicController extends Controller
 
         $request->validate([
             'registrasi_id' => 'required|exists:registrasis,id',
-            'nilai' => 'required|array|min:1',
+            'nilai_fasilitator' => 'nullable|array',
+            'nilai_materi' => 'nullable|array',
             'saran' => 'nullable|string|max:2000',
         ], [
             'registrasi_id.required' => 'Silakan cari dan pilih nama Anda terlebih dahulu.',
-            'nilai.required' => 'Semua poin evaluasi wajib diisi.',
         ]);
 
         $registrasi = Registrasi::where('id', $request->registrasi_id)
@@ -180,46 +199,62 @@ class EvaluasiPublicController extends Controller
             ->where('status_pendaftaran', 'Diterima')
             ->firstOrFail();
 
+        $adaTersimpan = false;
         $hariIni = now()->toDateString();
 
-        // Pastikan materi yang dikirim memang valid: milik fasilitator ini & sudah waktunya (anti-akal-akalan lewat request manual)
-        $materiValidIds = $event->eventFasilitatorMateris()
-            ->where('fasilitator_id', $fasilitator->id)
-            ->with('evaluasiMateri')
-            ->get()
-            ->filter(fn($efm) => is_null($efm->tanggal_sesi) || $efm->tanggal_sesi->toDateString() <= $hariIni)
-            ->pluck('evaluasi_materi_id')
-            ->unique();
+        // ---- Simpan Komponen Fasilitator (hanya jika belum pernah dinilai peserta ini) ----
+        if ($request->filled('nilai_fasilitator')) {
+            $sudahNilaiFasilitator = EvaluasiFasilitatorJawaban::where('registrasi_id', $registrasi->id)
+                ->where('fasilitator_id', $fasilitator->id)
+                ->where('event_id', $event->id)->exists();
 
-        // Materi yang sudah dinilai sebelumnya oleh peserta ini (jangan dinilai dobel)
-        $sudahDinilaiIds = EvaluasiFasilitatorJawaban::where('registrasi_id', $registrasi->id)
-            ->where('fasilitator_id', $fasilitator->id)
-            ->where('event_id', $event->id)
-            ->pluck('evaluasi_materi_id')->unique();
-
-        $adaTersimpan = false;
-
-        foreach ($request->nilai as $evaluasiMateriId => $kriteriaArr) {
-            if (!$materiValidIds->contains((int) $evaluasiMateriId) || $sudahDinilaiIds->contains((int) $evaluasiMateriId)) {
-                continue; // lewati materi yang belum waktunya / sudah pernah dinilai
+            if (!$sudahNilaiFasilitator) {
+                foreach ($request->nilai_fasilitator as $evaluasiFasilitatorId => $nilai) {
+                    EvaluasiFasilitatorJawaban::create([
+                        'registrasi_id' => $registrasi->id,
+                        'event_id' => $event->id,
+                        'fasilitator_id' => $fasilitator->id,
+                        'evaluasi_fasilitator_id' => $evaluasiFasilitatorId,
+                        'nilai' => $nilai,
+                        'saran' => $request->saran,
+                    ]);
+                }
+                $adaTersimpan = true;
             }
+        }
 
-            foreach ($kriteriaArr as $evaluasiFasilitatorId => $nilai) {
-                EvaluasiFasilitatorJawaban::create([
+        // ---- Simpan Komponen Materi (per materi, hanya yang valid & belum dinilai) ----
+        if ($request->filled('nilai_materi')) {
+            $materiValidIds = $event->eventFasilitatorMateris()
+                ->where('fasilitator_id', $fasilitator->id)
+                ->get()
+                ->filter(fn($efm) => is_null($efm->tanggal_sesi) || $efm->tanggal_sesi->toDateString() <= $hariIni)
+                ->pluck('evaluasi_materi_id')->unique();
+
+            $sudahDinilaiIds = EvaluasiMateriJawaban::where('registrasi_id', $registrasi->id)
+                ->where('fasilitator_id', $fasilitator->id)
+                ->where('event_id', $event->id)
+                ->pluck('evaluasi_materi_id')->unique();
+
+            foreach ($request->nilai_materi as $evaluasiMateriId => $nilai) {
+                if (!$materiValidIds->contains((int) $evaluasiMateriId) || $sudahDinilaiIds->contains((int) $evaluasiMateriId)) {
+                    continue; // lewati materi yang belum waktunya / sudah pernah dinilai
+                }
+
+                EvaluasiMateriJawaban::create([
                     'registrasi_id' => $registrasi->id,
                     'event_id' => $event->id,
                     'fasilitator_id' => $fasilitator->id,
                     'evaluasi_materi_id' => $evaluasiMateriId,
-                    'evaluasi_fasilitator_id' => $evaluasiFasilitatorId,
                     'nilai' => $nilai,
                     'saran' => $request->saran,
                 ]);
+                $adaTersimpan = true;
             }
-            $adaTersimpan = true;
         }
 
         if (!$adaTersimpan) {
-            return back()->with('error', 'Materi yang Anda kirim sudah pernah dinilai sebelumnya atau belum waktunya dinilai.');
+            return back()->with('error', 'Tidak ada penilaian baru yang tersimpan. Kemungkinan sudah pernah dinilai sebelumnya atau belum waktunya.');
         }
 
         return redirect()->route('evaluasi-pelatihan.public', ['uuid' => $uuid, 'registrasi' => $registrasi->id])

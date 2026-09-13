@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Models\Registrasi;
 use App\Models\EvaluasiPelatihan;
 use App\Models\EvaluasiFasilitatorJawaban;
+use App\Models\EvaluasiMateriJawaban;
 
 class EvaluasiRekapController extends Controller
 {
@@ -39,7 +40,7 @@ class EvaluasiRekapController extends Controller
             ? round($pesertas->where('sudah_isi', true)->avg('rata_rata'), 2)
             : 0;
 
-        // ============ RATA-RATA PER KRITERIA (untuk dashboard) ============
+        // ============ RATA-RATA PER KRITERIA (dashboard) ============
         $kriteriaList = EvaluasiPelatihan::where(function ($q) use ($event) {
             $q->where('pelatihan_id', $event->pelatihan_id)->orWhereNull('pelatihan_id');
         })->orderBy('id')->get();
@@ -56,7 +57,7 @@ class EvaluasiRekapController extends Controller
             ];
         })->filter(fn($k) => !is_null($k['rata_rata']))->values();
 
-        // ============ DAFTAR SARAN PESERTA ============
+        // ============ DAFTAR SARAN PESERTA (Evaluasi Pelatihan) ============
         $daftarSaran = $pesertas->filter(fn($p) => !empty(trim($p->saran ?? '')))
             ->map(fn($p) => [
                 'nama' => $p->nama_lengkap,
@@ -65,7 +66,7 @@ class EvaluasiRekapController extends Controller
                 'tanggal' => $p->tanggal_isi ? $p->tanggal_isi->format('d M Y H:i') : '-',
             ])->values();
 
-        // ============ REKAP PER FASILITATOR (dengan breakdown per peserta) ============
+        // ============ REKAP PER FASILITATOR: 2 KOMPONEN TERPISAH ============
         $rekapFasilitator = $event->eventFasilitatorMateris()
             ->with(['fasilitator', 'evaluasiMateri'])
             ->get()
@@ -74,12 +75,13 @@ class EvaluasiRekapController extends Controller
             ->map(function ($items) use ($event) {
                 $first = $items->first();
 
-                $jawaban = EvaluasiFasilitatorJawaban::where('event_id', $event->id)
+                // --- Komponen Fasilitator (1x per peserta, tidak terikat materi) ---
+                $jawabanFasilitator = EvaluasiFasilitatorJawaban::where('event_id', $event->id)
                     ->where('fasilitator_id', $first->fasilitator_id)
-                    ->with(['registrasi', 'evaluasiFasilitator', 'evaluasiMateri'])
+                    ->with(['registrasi', 'evaluasiFasilitator'])
                     ->get();
 
-                $pesertaDetail = $jawaban->groupBy('registrasi_id')->map(function ($jwb) {
+                $pesertaDetailFasilitator = $jawabanFasilitator->groupBy('registrasi_id')->map(function ($jwb) {
                     $reg = optional($jwb->first())->registrasi;
                     return [
                         'nama' => $reg ? $reg->nama_lengkap : '-',
@@ -87,28 +89,52 @@ class EvaluasiRekapController extends Controller
                         'rata_rata' => round($jwb->avg('nilai'), 2),
                         'saran' => $jwb->first()->saran,
                         'jawaban' => $jwb->map(fn($j) => [
-                            'materi' => optional($j->evaluasiMateri)->nama_materi ?? '-',
                             'kriteria' => optional($j->evaluasiFasilitator)->nama_evaluasi ?? '-',
                             'nilai' => $j->nilai,
                         ])->values(),
                     ];
                 })->values();
 
-                // Rata-rata per materi (untuk fasilitator yang mengajar >1 materi)
-                $materiBreakdown = $jawaban->groupBy(fn($j) => optional($j->evaluasiMateri)->nama_materi ?? '-')
-                    ->map(fn($jwb, $namaMateri) => [
-                        'nama_materi' => $namaMateri,
-                        'rata_rata' => round($jwb->avg('nilai'), 2),
-                    ])->values();
+                // --- Komponen Materi (per materi yang dia ajarkan) ---
+                $jawabanMateri = EvaluasiMateriJawaban::where('event_id', $event->id)
+                    ->where('fasilitator_id', $first->fasilitator_id)
+                    ->with(['registrasi', 'evaluasiMateri'])
+                    ->get();
+
+                $materiBreakdown = $items->pluck('evaluasiMateri')->filter()->unique('id')->map(function ($materi) use ($jawabanMateri) {
+                    $jwbMateriIni = $jawabanMateri->where('evaluasi_materi_id', $materi->id);
+                    return [
+                        'nama_materi' => $materi->nama_materi,
+                        'jumlah_menilai' => $jwbMateriIni->count(),
+                        'rata_rata' => $jwbMateriIni->isNotEmpty() ? round($jwbMateriIni->avg('nilai'), 2) : null,
+                    ];
+                })->values();
+
+                $pesertaDetailMateri = $jawabanMateri->groupBy('registrasi_id')->map(function ($jwb) {
+                    $reg = optional($jwb->first())->registrasi;
+                    return [
+                        'nama' => $reg ? $reg->nama_lengkap : '-',
+                        'instansi' => $reg ? $reg->instansi : '-',
+                        'jawaban' => $jwb->map(fn($j) => [
+                            'materi' => optional($j->evaluasiMateri)->nama_materi ?? '-',
+                            'nilai' => $j->nilai,
+                        ])->values(),
+                        'saran' => $jwb->first()->saran,
+                    ];
+                })->values();
 
                 return [
                     'id' => $first->fasilitator_id,
                     'nama' => $first->fasilitator->nama_fasilitator,
                     'materi' => $items->pluck('evaluasiMateri.nama_materi')->filter()->unique()->values(),
-                    'jumlah_evaluasi' => $pesertaDetail->count(),
-                    'rata_rata' => $jawaban->isNotEmpty() ? round($jawaban->avg('nilai'), 2) : null,
+                    // Komponen Fasilitator
+                    'jumlah_menilai_fasilitator' => $pesertaDetailFasilitator->count(),
+                    'rata_rata_fasilitator' => $jawabanFasilitator->isNotEmpty() ? round($jawabanFasilitator->avg('nilai'), 2) : null,
+                    'peserta_detail_fasilitator' => $pesertaDetailFasilitator,
+                    // Komponen Materi
                     'materi_breakdown' => $materiBreakdown,
-                    'peserta_detail' => $pesertaDetail,
+                    'rata_rata_materi' => $jawabanMateri->isNotEmpty() ? round($jawabanMateri->avg('nilai'), 2) : null,
+                    'peserta_detail_materi' => $pesertaDetailMateri,
                 ];
             })->values();
 

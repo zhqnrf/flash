@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Registrasi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PembayaranController extends Controller
 {
-    // Halaman Pembayaran per Event: detail pelatihan + daftar peserta
+    // Halaman Pembayaran per Event: detail pelatihan + daftar peserta + Dashboard Statistik
     public function index(Request $request, Event $event)
     {
         $event->load('pelatihan');
@@ -71,6 +72,7 @@ class PembayaranController extends Controller
         ));
     }
 
+    // ACC pendaftaran -> admin pilih Lunas atau Cicil
     public function acc(Request $request, Registrasi $registrasi)
     {
         $request->validate([
@@ -131,5 +133,57 @@ class PembayaranController extends Controller
         ]);
 
         return back()->with('success', 'Pembayaran peserta ditandai LUNAS. Link pelunasan otomatis nonaktif.');
+    }
+
+    // ==========================================
+    // BARU: Hapus data peserta (registrasi) sepenuhnya
+    // ==========================================
+    public function hapusPeserta(Registrasi $registrasi)
+    {
+        // Menghapus file gambar bukti bayar dari storage
+        if ($registrasi->bukti_bayar_pertama) {
+            Storage::disk('public')->delete($registrasi->bukti_bayar_pertama);
+        }
+        if ($registrasi->bukti_bayar_terakhir) {
+            Storage::disk('public')->delete($registrasi->bukti_bayar_terakhir);
+        }
+
+        $nama = $registrasi->nama_lengkap ?? $registrasi->nama;
+        // Absensi & jawaban evaluasi terkait ikut terhapus otomatis (bila memakai relasi cascade di database)
+        $registrasi->delete();
+
+        return back()->with('success', "Data peserta {$nama} berhasil dihapus.");
+    }
+
+    // ==========================================
+    // BARU: Edit cepat data peserta (dari modal di halaman pembayaran)
+    // ==========================================
+    public function updateQuickEdit(Request $request, Registrasi $registrasi)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'instansi' => 'required|string|max:255',
+            'departemen' => 'nullable|string|max:255',
+            'email_plataran_sehat' => 'required|email',
+            'no_whatsapp' => 'required|string|min:9|max:15',
+        ]);
+
+        // Standarisasi nomor WA (Ubah awalan 0 menjadi 62)
+        $noWa = preg_replace('/[^0-9]/', '', $request->no_whatsapp);
+        if (substr($noWa, 0, 1) === '0') {
+            $noWa = '62' . substr($noWa, 1);
+        } elseif (substr($noWa, 0, 2) !== '62') {
+            $noWa = '62' . $noWa;
+        }
+
+        $registrasi->update([
+            'nama' => $request->nama,
+            'instansi' => $request->instansi,
+            'departemen' => $request->departemen,
+            'email_plataran_sehat' => $request->email_plataran_sehat,
+            'no_whatsapp' => $noWa,
+        ]);
+
+        return back()->with('success', 'Data peserta berhasil diperbarui.');
     }
 }

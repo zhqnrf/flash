@@ -74,6 +74,7 @@
 <body class="font-sans antialiased text-gray-800 bg-gray-50 overflow-x-hidden w-full" x-data="{ scrolled: false }" @scroll.window="scrolled = (window.pageYOffset > 50)">
 
     <!-- ================= NAVBAR ================= -->
+ <!-- ================= NAVBAR ================= -->
     <nav :class="{'bg-white/90 backdrop-blur-lg shadow-lg py-2': scrolled, 'bg-transparent py-4 sm:py-6': !scrolled}" class="fixed w-full z-50 transition-all duration-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center">
@@ -84,9 +85,17 @@
                     </div>
                     <span :class="{'text-navy': scrolled, 'text-white drop-shadow-md': !scrolled}" class="font-extrabold text-xl sm:text-2xl md:text-3xl tracking-widest transition-colors duration-300">FITC</span>
                 </div>
-                <!-- Login Button -->
-                <div>
-                    <a href="{{ url('/login') }}" :class="{'bg-gradient-to-r from-primary to-ocean text-white shadow-lg shadow-blue-500/30': scrolled, 'bg-white/10 text-white backdrop-blur-md border border-white/30 hover:bg-white hover:text-navy': !scrolled}" class="font-bold text-sm sm:text-base py-2 px-5 sm:py-3 sm:px-8 rounded-full transition-all duration-300 transform hover:scale-105 inline-block">
+
+                <!-- Tombol Navigasi Kanan (Pengaduan & Login) -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- TOMBOL PENGADUAN (SIMPEL) -->
+                    <a href="{{ url('/pengaduan') }}" :class="{'text-navy hover:bg-gray-100 border border-gray-200': scrolled, 'text-white bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20': !scrolled}" class="font-bold text-xs sm:text-sm py-2 px-3 sm:py-3 sm:px-5 rounded-full transition-all duration-300 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                        <span class="hidden sm:inline">Layanan</span> Pengaduan
+                    </a>
+
+                    <!-- Login Button -->
+                    <a href="{{ url('/login') }}" :class="{'bg-gradient-to-r from-primary to-ocean text-white shadow-lg shadow-blue-500/30': scrolled, 'bg-white text-navy hover:bg-gray-100': !scrolled}" class="font-bold text-xs sm:text-sm py-2 px-4 sm:py-3 sm:px-6 rounded-full transition-all duration-300 transform hover:scale-105 inline-block shadow-md">
                         Login 
                     </a>
                 </div>
@@ -278,65 +287,92 @@
             </div>
             
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-                @forelse($events ?? [] as $event)
-                    @php
-                        $isPopular = $loop->index === 1; 
-                        $namaPelatihan = $event->pelatihan->nama_pelatihan ?? $event->nama_event ?? 'Program Pelatihan';
-                        $deskripsi = $event->deskripsi ?? 'Pelatihan resmi bersertifikasi untuk tenaga medis dan kesehatan.';
-                        
-                        // Logika Format Harga Otomatis (Juta / Ribu)
-                        $harga = $event->biaya ?? 1500000;
-                        if ($harga >= 1000000) {
-                            $formattedHarga = rtrim(rtrim(number_format($harga / 1000000, 1, ',', '.'), '0'), ',') . '<span class="text-lg sm:text-xl font-bold opacity-80">jt</span>';
-                        } elseif ($harga >= 1000) {
-                            $formattedHarga = number_format($harga / 1000, 0, ',', '.') . '<span class="text-lg sm:text-xl font-bold opacity-80">rb</span>';
-                        } else {
-                            $formattedHarga = number_format($harga, 0, ',', '.');
-                        }
-                    @endphp
+             @forelse($events ?? [] as $event)
+    @php
+        $isPopular = $loop->index === 1; 
+        $namaPelatihan = $event->pelatihan->nama_pelatihan ?? $event->nama_event ?? 'Program Pelatihan';
+        $deskripsi = $event->deskripsi ?? 'Pelatihan resmi bersertifikasi untuk tenaga medis dan kesehatan.';
+        
+        // Logika Format Harga Otomatis (Juta / Ribu)
+        // Perhatikan: di Controller kamu nama fieldnya biaya_pelatihan bukan biaya
+        $harga = $event->biaya_pelatihan ?? 1500000; 
+        if ($harga >= 1000000) {
+            $formattedHarga = rtrim(rtrim(number_format($harga / 1000000, 1, ',', '.'), '0'), ',') . '<span class="text-lg sm:text-xl font-bold opacity-80">jt</span>';
+        } elseif ($harga >= 1000) {
+            $formattedHarga = number_format($harga / 1000, 0, ',', '.') . '<span class="text-lg sm:text-xl font-bold opacity-80">rb</span>';
+        } else {
+            $formattedHarga = number_format($harga, 0, ',', '.');
+        }
 
-                    @if($isPopular)
-                        <!-- Card Highlight / Populer -->
-                        <div data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}" class="bg-[#1a365d] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-4 xl:-translate-y-6 group relative overflow-hidden flex flex-col">
-                            <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/5 rounded-bl-full"></div>
-                            <div class="absolute -right-8 top-5 sm:-right-6 sm:top-6 bg-[#1ba1e2] text-white text-[10px] sm:text-xs font-bold px-8 sm:px-10 py-1 transform rotate-45 shadow-md">POPULER</div>
-                            
-                            <h4 class="text-xl sm:text-2xl font-extrabold text-white mb-3 sm:mb-4 relative z-10 pr-6">{{ $namaPelatihan }}</h4>
-                            <p class="text-blue-200 text-sm mb-4 sm:mb-6 flex-grow relative z-10">{{ Str::limit($deskripsi, 80) }}</p>
-                            
-                            <!-- Harga Otomatis -->
-                            <p class="text-3xl sm:text-4xl font-black text-[#5bc0de] mb-4 sm:mb-6 mt-auto relative z-10">
-                                Rp {!! $formattedHarga !!}
-                            </p>
+        // LOGIKA KADALUARSA (Pendaftaran ditutup jika hari ini sudah melewati tanggal_mulai)
+        $isClosed = \Carbon\Carbon::parse($event->tanggal_mulai)->startOfDay()->isPast();
+        
+        // Link Pendaftaran yang benar sesuai dengan nama route
+        $registerUrl = route('registrasi.public', $event->uuid);
+    @endphp
 
-                            <div class="mb-6 sm:mb-8 relative z-10"><span class="bg-white/10 text-white text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wider border border-white/20 block text-center sm:inline-block">MIN {{ $event->minimal_peserta ?? 25 }} PESERTA</span></div>
-                            <a href="{{ url('/register-event/' . ($event->uuid ?? '#')) }}" class="w-full py-3 sm:py-4 rounded-xl bg-[#1ba1e2] text-white font-bold hover:bg-[#5bc0de] transition-all duration-300 shadow-lg relative z-10 text-center block">Daftar Pelatihan</a>
-                        </div>
-                    @else
-                        <!-- Card Standar -->
-                        <div data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}" class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-4 border border-gray-200 group flex flex-col">
-                            <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3 sm:mb-4">{{ $namaPelatihan }}</h4>
-                            <p class="text-gray-500 text-sm mb-4 sm:mb-6 flex-grow">{{ Str::limit($deskripsi, 80) }}</p>
-                            
-                            <!-- Harga Otomatis -->
-                            <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 sm:mb-6 mt-auto">
-                                Rp {!! $formattedHarga !!}
-                            </p>
+    @if($isPopular)
+        <!-- Card Highlight / Populer -->
+        <div data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}" class="bg-[#1a365d] rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-4 xl:-translate-y-6 group relative overflow-hidden flex flex-col">
+            <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/5 rounded-bl-full"></div>
+            <div class="absolute -right-8 top-5 sm:-right-6 sm:top-6 bg-[#1ba1e2] text-white text-[10px] sm:text-xs font-bold px-8 sm:px-10 py-1 transform rotate-45 shadow-md">POPULER</div>
+            
+            <h4 class="text-xl sm:text-2xl font-extrabold text-white mb-3 sm:mb-4 relative z-10 pr-6">{{ $namaPelatihan }}</h4>
+            <p class="text-blue-200 text-sm mb-4 sm:mb-6 flex-grow relative z-10">{{ Str::limit($deskripsi, 80) }}</p>
+            
+            <!-- Harga Otomatis -->
+            <p class="text-3xl sm:text-4xl font-black text-[#5bc0de] mb-4 sm:mb-6 mt-auto relative z-10">
+                Rp {!! $formattedHarga !!}
+            </p>
 
-                            <div class="mb-6 sm:mb-8"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wider block text-center sm:inline-block">MIN {{ $event->minimal_peserta ?? 25 }} PESERTA</span></div>
-                            <a href="{{ url('/register-event/' . ($event->uuid ?? '#')) }}" class="w-full py-3 sm:py-4 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold group-hover:bg-[#1a365d] group-hover:text-white transition-all duration-300 text-center block">Daftar Pelatihan</a>
-                        </div>
-                    @endif
-                @empty
-                    <!-- Fallback Statis -->
-                    <div class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md border border-gray-200 flex flex-col">
-                        <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3">BTCLS</h4>
-                        <p class="text-gray-500 text-sm mb-4 flex-grow">Basic Trauma Cardiac Life Support untuk perawat dan tenaga medis.</p>
-                        <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 mt-auto">Rp 1,5<span class="text-xl font-bold">jt</span></p>
-                        <div class="mb-6"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-full">MIN 25 PESERTA</span></div>
-                        <a href="#" class="w-full py-3 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold text-center block">Daftar Pelatihan</a>
-                    </div>
-                @endforelse
+            <div class="mb-6 sm:mb-8 relative z-10"><span class="bg-white/10 text-white text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wider border border-white/20 block text-center sm:inline-block">MIN {{ $event->minimal_peserta ?? 25 }} PESERTA</span></div>
+            
+            <!-- BUTTON KADALUARSA / DAFTAR -->
+            @if($isClosed)
+                <button disabled class="w-full py-3 sm:py-4 rounded-xl bg-gray-500 text-gray-300 font-bold cursor-not-allowed shadow-none text-center block relative z-10">
+                    Pendaftaran Ditutup
+                </button>
+            @else
+                <a href="{{ $registerUrl }}" class="w-full py-3 sm:py-4 rounded-xl bg-[#1ba1e2] text-white font-bold hover:bg-[#5bc0de] transition-all duration-300 shadow-lg relative z-10 text-center block">
+                    Daftar Pelatihan
+                </a>
+            @endif
+        </div>
+    @else
+        <!-- Card Standar -->
+        <div data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}" class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-4 border border-gray-200 group flex flex-col relative">
+            <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3 sm:mb-4">{{ $namaPelatihan }}</h4>
+            <p class="text-gray-500 text-sm mb-4 sm:mb-6 flex-grow">{{ Str::limit($deskripsi, 80) }}</p>
+            
+            <!-- Harga Otomatis -->
+            <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 sm:mb-6 mt-auto">
+                Rp {!! $formattedHarga !!}
+            </p>
+
+            <div class="mb-6 sm:mb-8"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full tracking-wider block text-center sm:inline-block">MIN {{ $event->minimal_peserta ?? 25 }} PESERTA</span></div>
+            
+            <!-- BUTTON KADALUARSA / DAFTAR -->
+            @if($isClosed)
+                <button disabled class="w-full py-3 sm:py-4 rounded-xl bg-gray-300 text-gray-500 font-bold cursor-not-allowed shadow-none text-center block">
+                    Pendaftaran Ditutup
+                </button>
+            @else
+                <a href="{{ $registerUrl }}" class="w-full py-3 sm:py-4 rounded-xl bg-white border-2 border-[#1a365d] text-[#1a365d] font-bold group-hover:bg-[#1a365d] group-hover:text-white transition-all duration-300 text-center block">
+                    Daftar Pelatihan
+                </a>
+            @endif
+        </div>
+    @endif
+@empty
+    <!-- Fallback Statis -->
+    <div class="bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-md border border-gray-200 flex flex-col">
+        <h4 class="text-xl sm:text-2xl font-extrabold text-navy mb-3">BTCLS</h4>
+        <p class="text-gray-500 text-sm mb-4 flex-grow">Basic Trauma Cardiac Life Support untuk perawat dan tenaga medis.</p>
+        <p class="text-3xl sm:text-4xl font-black text-[#1ba1e2] mb-4 mt-auto">Rp 1,5<span class="text-xl font-bold">jt</span></p>
+        <div class="mb-6"><span class="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-full">MIN 25 PESERTA</span></div>
+        <button disabled class="w-full py-3 rounded-xl bg-gray-300 text-gray-500 font-bold text-center block cursor-not-allowed">Belum Ada Jadwal</button>
+    </div>
+@endforelse
             </div>
         </div>
     </section>

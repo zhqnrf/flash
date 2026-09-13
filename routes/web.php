@@ -25,6 +25,9 @@ Route::post('/pembayaran/{uuid}', [\App\Http\Controllers\RegistrasiController::c
 // Rute Publik: Absensi (cari nama + selfie, dibatasi jam presensi event)
 Route::get('/presensi/{uuid}', [AbsensiController::class, 'create'])->name('presensi.public');
 Route::post('/presensi/{uuid}', [AbsensiController::class, 'store'])->name('presensi.store');
+// Manajemen Event
+Route::get('/pengaduan', [\App\Http\Controllers\PengaduanController::class, 'create'])->name('public.pengaduan');
+Route::post('/pengaduan', [\App\Http\Controllers\PengaduanController::class, 'store'])->name('pengaduan.store');
 
 // Rute Publik: Evaluasi Pelatihan (oleh peserta) + daftar link evaluasi pemateri
 Route::get('/evaluasi-pelatihan/{uuid}', [EvaluasiPublicController::class, 'create'])->name('evaluasi-pelatihan.public');
@@ -34,21 +37,44 @@ Route::post('/evaluasi-pelatihan/{uuid}', [EvaluasiPublicController::class, 'sto
 Route::get('/evaluasi-fasilitator/{uuid}/{fasilitator}', [EvaluasiPublicController::class, 'createFasilitator'])->name('evaluasi-fasilitator.public');
 Route::post('/evaluasi-fasilitator/{uuid}/{fasilitator}', [EvaluasiPublicController::class, 'storeFasilitator'])->name('evaluasi-fasilitator.store');
 
+// Rute Admin: hapus/reset evaluasi pelatihan seorang peserta
+Route::delete('/evaluasi-peserta/{registrasi}/hapus', [EvaluasiPublicController::class, 'hapusEvaluasiPelatihan'])->name('evaluasi-peserta.hapus');
+
+// Rute Publik: Survey Kepuasan Masyarakat (SKM)
+Route::get('/survey-kepuasan', [\App\Http\Controllers\SurveyKepuasanController::class, 'create'])->name('survey-kepuasan.public');
+Route::post('/survey-kepuasan', [\App\Http\Controllers\SurveyKepuasanController::class, 'store'])->name('survey-kepuasan.store');
+// Rute Admin: Rekap & Perhitungan IKM
+Route::get('/survey-kepuasan/rekap', [\App\Http\Controllers\SurveyKepuasanController::class, 'rekap'])->name('survey-kepuasan.rekap');
+
+// Route baru untuk Cetak via JS & Halaman Validasi QR
+Route::get('/survey-kepuasan/cetak', [\App\Http\Controllers\SurveyKepuasanController::class, 'cetak'])->name('survey-kepuasan.cetak');
+Route::get('/validasi-ikm/{tahun}/{bulan?}', [\App\Http\Controllers\SurveyKepuasanController::class, 'validasi'])->name('validasi.ikm');
 // Route Landing Page
 Route::get('/landing', [LandingController::class, 'index']);
-
+// Rute Validasi Dokumen Event
+Route::get('/validasi-dokumen/event/{uuid}', [\App\Http\Controllers\LandingController::class, 'validasiEvent'])->name('validasi.event');
 // ==========================================
 // ROUTE AUTENTIKASI (LOGIN & LOGOUT)
 // ==========================================
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-// Manajemen Event
+
+// Rute Admin Pengaduan
+Route::prefix('admin/pengaduan')->name('pengaduan.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\PengaduanController::class, 'index'])->name('index');
+    Route::get('/cetak-pdf', [\App\Http\Controllers\PengaduanController::class, 'cetakPdf'])->name('cetak-pdf');
+    Route::get('/export-excel', [\App\Http\Controllers\PengaduanController::class, 'exportExcel'])->name('export-excel');
+    Route::put('/{pengaduan}', [\App\Http\Controllers\PengaduanController::class, 'update'])->name('update');
+    Route::get('/{pengaduan}/cetak-detail', [\App\Http\Controllers\PengaduanController::class, 'cetakDetail'])->name('cetak-detail');
+    Route::delete('/{pengaduan}', [\App\Http\Controllers\PengaduanController::class, 'destroy'])->name('destroy');
+});
 Route::prefix('event')->name('event.')->group(function () {
     Route::get('/', [\App\Http\Controllers\EventController::class, 'index'])->name('index');
     Route::get('/create', [\App\Http\Controllers\EventController::class, 'create'])->name('create');
     Route::post('/', [\App\Http\Controllers\EventController::class, 'store'])->name('store');
-    
+    // Rute Halaman Cetak Surat Bukti Event
+Route::get('/{event}/cetak-surat', [\App\Http\Controllers\EventController::class, 'cetakSurat'])->name('cetak-surat');
     // Rute Edit, Update, Destroy
     Route::get('/{event}/edit', [\App\Http\Controllers\EventController::class, 'edit'])->name('edit');
     Route::put('/{event}', [\App\Http\Controllers\EventController::class, 'update'])->name('update');
@@ -78,6 +104,8 @@ Route::prefix('registrasi')->name('registrasi.')->group(function () {
     Route::post('/{registrasi}/tolak', [PembayaranController::class, 'tolak'])->name('tolak');
     Route::post('/{registrasi}/update-cicilan', [PembayaranController::class, 'updateCicilan'])->name('update-cicilan');
     Route::post('/{registrasi}/lunas', [PembayaranController::class, 'tandaiLunas'])->name('lunas');
+    Route::delete('/{registrasi}/hapus', [PembayaranController::class, 'hapusPeserta'])->name('hapus');
+    Route::put('/{registrasi}/quick-edit', [PembayaranController::class, 'updateQuickEdit'])->name('quick-edit');
 });
 
 // ==========================================

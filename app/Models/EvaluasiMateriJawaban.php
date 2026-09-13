@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EvaluasiFasilitatorJawaban extends Model
+class EvaluasiMateriJawaban extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
@@ -25,8 +25,8 @@ class EvaluasiFasilitatorJawaban extends Model
         return $this->belongsTo(Fasilitator::class);
     }
 
-    public function evaluasiFasilitator()
+    public function evaluasiMateri()
     {
-        return $this->belongsTo(EvaluasiFasilitator::class);
+        return $this->belongsTo(EvaluasiMateri::class, 'evaluasi_materi_id');
     }
 }

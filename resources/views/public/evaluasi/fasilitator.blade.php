@@ -42,7 +42,8 @@
                 pesertas: {{ $pesertas->values() }},
                 materiTersedia: {{ $materiTersedia }},
                 totalMateri: {{ (int) $totalMateriKeseluruhan }},
-                sudahDinilaiMap: {{ $sudahDinilaiMap->toJson() ?: '{}' }},
+                sudahDinilaiMateriMap: {{ $sudahDinilaiMateriMap->toJson() ?: '{}' }},
+                sudahNilaiFasilitatorIds: {{ $sudahNilaiFasilitatorIds->values() }},
                 search: '',
                 selected: null,
                 get filtered() {
@@ -50,16 +51,16 @@
                     const q = this.search.toLowerCase();
                     return this.pesertas.filter(p => p.nama.toLowerCase().includes(q)).slice(0, 8);
                 },
-                dinilaiCount(id) { return (this.sudahDinilaiMap[id] || []).length; },
+                dinilaiMateriCount(id) { return (this.sudahDinilaiMateriMap[id] || []).length; },
                 pilih(p) { this.selected = p; this.search = ''; },
-                get pendingIds() {
+                get pendingMateriIds() {
                     if (!this.selected) return [];
-                    const done = this.sudahDinilaiMap[this.selected.id] || [];
+                    const done = this.sudahDinilaiMateriMap[this.selected.id] || [];
                     return this.materiTersedia.filter(m => !done.includes(m.id)).map(m => m.id);
                 },
-                sudahDinilai(materiId) {
+                get sudahNilaiFasilitator() {
                     if (!this.selected) return false;
-                    return (this.sudahDinilaiMap[this.selected.id] || []).includes(materiId);
+                    return this.sudahNilaiFasilitatorIds.includes(this.selected.id);
                 }
              }"
              x-init="
@@ -85,8 +86,6 @@
                                     <span class="block text-sm font-extrabold text-slate-800" x-text="p.nama"></span>
                                     <span class="block text-xs text-slate-400" x-text="p.instansi"></span>
                                 </span>
-                                <span x-show="totalMateri > 0 && dinilaiCount(p.id) >= totalMateri" class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">Selesai</span>
-                                <span x-show="dinilaiCount(p.id) > 0 && dinilaiCount(p.id) < totalMateri" class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full">Sebagian</span>
                             </button>
                         </template>
                         <p x-show="filtered.length === 0" class="text-xs text-slate-400 text-center py-4">Nama tidak ditemukan. Pastikan Anda sudah terdaftar & diterima sebagai peserta.</p>
@@ -94,78 +93,102 @@
                 </div>
             </template>
 
-            <!-- STEP 2: FORM EVALUASI -->
+            <!-- STEP 2: FORM EVALUASI (2 KOMPONEN) -->
             <template x-if="selected">
                 <div>
                     <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100 mb-6 flex items-center justify-between">
                         <div>
                             <p class="text-[10px] font-bold text-blue-700 uppercase tracking-wide">Mengisi sebagai</p>
                             <p class="text-base font-extrabold text-[#1a365d]" x-text="selected.nama"></p>
-                            <p class="text-xs text-slate-400 mt-0.5" x-show="totalMateri > 0">Sudah dinilai <span x-text="dinilaiCount(selected.id)"></span> dari <span x-text="totalMateri"></span> materi</p>
+                            <p class="text-xs text-slate-400 mt-0.5" x-show="totalMateri > 0">Materi dinilai <span x-text="dinilaiMateriCount(selected.id)"></span> dari <span x-text="totalMateri"></span></p>
                         </div>
                         <button type="button" @click="selected = null" class="text-xs font-bold text-slate-400 hover:text-red-500">Ganti</button>
                     </div>
 
-                    <!-- Tidak ada materi yang bisa dinilai sama sekali hari ini -->
-                    <template x-if="materiTersedia.length === 0">
-                        <div class="bg-amber-50 border border-amber-100 rounded-2xl p-6 text-center">
-                            <p class="font-extrabold text-amber-800">Belum Ada Materi yang Bisa Dinilai</p>
-                            <p class="text-sm text-amber-700 mt-1">Materi dari fasilitator ini belum diajarkan. Silakan kembali lagi setelah sesinya berlangsung.</p>
-                        </div>
-                    </template>
-
-                    <!-- Semua materi yang tersedia sudah dinilai peserta ini -->
-                    <template x-if="materiTersedia.length > 0 && pendingIds.length === 0">
-                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 text-center">
-                            <svg class="w-10 h-10 text-emerald-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <p class="font-extrabold text-emerald-800">Semua Materi yang Tersedia Sudah Anda Nilai</p>
-                            <p class="text-sm text-emerald-700 mt-1" x-show="dinilaiCount(selected.id) < totalMateri">Materi lainnya akan muncul di sini begitu sudah diajarkan.</p>
-                            <p class="text-sm text-emerald-700 mt-1" x-show="dinilaiCount(selected.id) >= totalMateri">Terima kasih atas partisipasi Anda!</p>
-                        </div>
-                    </template>
-
-                    <form x-show="pendingIds.length > 0" action="{{ route('evaluasi-fasilitator.store', [$event->uuid, $fasilitator->id]) }}" method="POST" class="space-y-6">
+                    <form action="{{ route('evaluasi-fasilitator.store', [$event->uuid, $fasilitator->id]) }}" method="POST" class="space-y-8">
                         @csrf
                         <input type="hidden" name="registrasi_id" :value="selected.id">
 
-                        @foreach($materiTersedia as $materi)
-                        <div x-show="pendingIds.includes({{ $materi['id'] }})">
-                            <div class="border border-slate-200 rounded-2xl p-4">
-                                <p class="text-xs font-extrabold text-indigo-600 uppercase tracking-wide mb-1">Materi: {{ $materi['nama'] }}</p>
-                                @if($materi['tanggal_sesi'])
-                                <p class="text-[10px] text-slate-400 mb-3">Diajarkan {{ $materi['tanggal_sesi'] }}</p>
-                                @endif
+                        <!-- ===== KOMPONEN 1: PENILAIAN MATERI (per materi) ===== -->
+                        <div>
+                            <h2 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-3">Penilaian Materi</h2>
 
-                                <div class="space-y-4">
-                                    @forelse($kriteria as $k)
-                                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                        <p class="text-sm font-bold text-slate-700 mb-3">{{ $loop->iteration }}. {{ $k->nama_evaluasi }}</p>
-                                        <div class="flex gap-2 flex-wrap">
-                                            @for($i = $k->rentang_nilai_min; $i <= $k->rentang_nilai_max; $i++)
-                                            <label class="cursor-pointer">
-                                                <input type="radio" name="nilai[{{ $materi['id'] }}][{{ $k->id }}]" value="{{ $i }}" x-bind:required="pendingIds.includes({{ $materi['id'] }})" class="sr-only peer">
-                                                <div class="w-11 h-11 flex items-center justify-center rounded-xl border-2 border-slate-200 font-extrabold text-slate-500 bg-white peer-checked:bg-[#1a365d] peer-checked:border-[#1a365d] peer-checked:text-white transition">{{ $i }}</div>
-                                            </label>
-                                            @endfor
-                                        </div>
-                                        <div class="flex justify-between text-[10px] text-slate-400 mt-1.5 px-1">
-                                            <span>Sangat Kurang</span><span>Sangat Baik</span>
-                                        </div>
-                                    </div>
-                                    @empty
-                                    <p class="text-xs text-slate-400">Belum ada kriteria evaluasi fasilitator.</p>
-                                    @endforelse
+                            <template x-if="materiTersedia.length === 0">
+                                <div class="bg-amber-50 border border-amber-100 rounded-2xl p-5 text-center">
+                                    <p class="text-sm font-extrabold text-amber-800">Belum Ada Materi yang Bisa Dinilai</p>
+                                    <p class="text-xs text-amber-700 mt-1">Materi dari fasilitator ini belum diajarkan. Silakan kembali lagi setelah sesinya berlangsung.</p>
                                 </div>
+                            </template>
+
+                            <template x-if="materiTersedia.length > 0 && pendingMateriIds.length === 0">
+                                <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 text-center">
+                                    <p class="text-sm font-extrabold text-emerald-800">Semua Materi yang Tersedia Sudah Anda Nilai</p>
+                                    <p class="text-xs text-emerald-700 mt-1" x-show="dinilaiMateriCount(selected.id) < totalMateri">Materi lainnya akan muncul di sini begitu sudah diajarkan.</p>
+                                </div>
+                            </template>
+
+                            <div class="space-y-4">
+                                @foreach($materiTersedia as $materi)
+                                <div x-show="pendingMateriIds.includes({{ $materi['id'] }})" class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                    <p class="text-sm font-bold text-slate-700 mb-1">{{ $materi['nama'] }}</p>
+                                    @if($materi['tanggal_sesi'])
+                                    <p class="text-[10px] text-slate-400 mb-3">Diajarkan {{ $materi['tanggal_sesi'] }}</p>
+                                    @endif
+                                    <div class="flex gap-2 flex-wrap">
+                                        @for($i = $materi['rentang_min']; $i <= $materi['rentang_max']; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="nilai_materi[{{ $materi['id'] }}]" value="{{ $i }}" x-bind:required="pendingMateriIds.includes({{ $materi['id'] }})" class="sr-only peer">
+                                            <div class="w-11 h-11 flex items-center justify-center rounded-xl border-2 border-slate-200 font-extrabold text-slate-500 bg-white peer-checked:bg-[#1a365d] peer-checked:border-[#1a365d] peer-checked:text-white transition">{{ $i }}</div>
+                                        </label>
+                                        @endfor
+                                    </div>
+                                    <div class="flex justify-between text-[10px] text-slate-400 mt-1.5 px-1">
+                                        <span>Sangat Kurang</span><span>Sangat Baik</span>
+                                    </div>
+                                </div>
+                                @endforeach
                             </div>
                         </div>
-                        @endforeach
 
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Saran / Masukan untuk Fasilitator Ini <span class="text-slate-400 font-normal">(Opsional)</span></label>
+                        <!-- ===== KOMPONEN 2: PENILAIAN FASILITATOR (1x saja) ===== -->
+                        <div>
+                            <h2 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-3">Penilaian Fasilitator (Keseluruhan)</h2>
+
+                            <template x-if="sudahNilaiFasilitator">
+                                <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 text-center">
+                                    <svg class="w-8 h-8 text-emerald-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <p class="text-sm font-extrabold text-emerald-800">Anda Sudah Menilai Fasilitator Ini</p>
+                                </div>
+                            </template>
+
+                            <div class="space-y-4" x-show="!sudahNilaiFasilitator">
+                                @forelse($kriteriaFasilitator as $k)
+                                <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                    <p class="text-sm font-bold text-slate-700 mb-3">{{ $loop->iteration }}. {{ $k->nama_evaluasi }}</p>
+                                    <div class="flex gap-2 flex-wrap">
+                                        @for($i = $k->rentang_nilai_min; $i <= $k->rentang_nilai_max; $i++)
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="nilai_fasilitator[{{ $k->id }}]" value="{{ $i }}" x-bind:required="!sudahNilaiFasilitator" class="sr-only peer">
+                                            <div class="w-11 h-11 flex items-center justify-center rounded-xl border-2 border-slate-200 font-extrabold text-slate-500 bg-white peer-checked:bg-[#1a365d] peer-checked:border-[#1a365d] peer-checked:text-white transition">{{ $i }}</div>
+                                        </label>
+                                        @endfor
+                                    </div>
+                                    <div class="flex justify-between text-[10px] text-slate-400 mt-1.5 px-1">
+                                        <span>Sangat Kurang</span><span>Sangat Baik</span>
+                                    </div>
+                                </div>
+                                @empty
+                                <p class="text-xs text-slate-400">Belum ada kriteria evaluasi fasilitator.</p>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100" x-show="pendingMateriIds.length > 0 || !sudahNilaiFasilitator">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Saran / Masukan <span class="text-slate-400 font-normal">(Opsional)</span></label>
                             <textarea name="saran" rows="3" placeholder="Tuliskan saran, kritik, atau masukan Anda di sini..." class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm font-medium transition"></textarea>
                         </div>
 
-                        <button type="submit" class="w-full bg-[#1a365d] hover:bg-[#142c4c] text-white py-4 rounded-xl font-extrabold text-sm shadow-xl transition-all transform hover:-translate-y-0.5">
+                        <button type="submit" x-show="pendingMateriIds.length > 0 || !sudahNilaiFasilitator" class="w-full bg-[#1a365d] hover:bg-[#142c4c] text-white py-4 rounded-xl font-extrabold text-sm shadow-xl transition-all transform hover:-translate-y-0.5">
                             Kirim Evaluasi
                         </button>
                     </form>

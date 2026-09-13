@@ -41,7 +41,13 @@ class EventController extends Controller
 
         return response()->json($data);
     }
-
+// Halaman Cetak Surat Bukti Event
+    public function cetakSurat(Event $event)
+    {
+        // Pastikan relasi pelatihan ikut terpanggil
+        $event->load('pelatihan');
+        return view('event.cetak', compact('event'));
+    }
     // Simpan Data Event
     public function store(Request $request)
     {

@@ -3,6 +3,8 @@
 
 @section('content')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- TAMBAHKAN INI UNTUK EXPORT PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
     <div>
@@ -122,6 +124,9 @@
                             <button onclick="showLinkPenilaian('{{ $item->uuid }}', {{ $fasilitatorUnik }}, {{ $fasilMateriList }})" class="flex items-center gap-1.5 bg-indigo-100 text-indigo-700 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition-all shadow-sm border border-indigo-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg> Penilaian
                             </button>
+                             <a href="{{ route('event.cetak-surat', $item->id) }}" target="_blank" class="flex items-center gap-1.5 bg-rose-100 text-rose-700 hover:bg-rose-600 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition-all shadow-sm border border-rose-200 mt-1 sm:mt-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg> Cetak Dokumen
+        </a>
                         </div>
                         
                         <div class="flex items-center justify-center gap-2">
