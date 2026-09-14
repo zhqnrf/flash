@@ -130,8 +130,11 @@
                         </div>
                         
                         <div class="flex items-center justify-center gap-2">
-                            <button onclick='copyWaBlast(@json($item), {{ $fasilitatorUnik }}, {{ $fasilMateriList }})' class="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-bold transition-all shadow-md">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> Copy WA Blast
+                            <button onclick='copyWaBlastPeserta(@json($item), {{ $fasilitatorUnik }})' class="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-bold transition-all shadow-md">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> WA Peserta
+                            </button>
+                            <button onclick='copyWaBlastFasilitator(@json($item), {{ $fasilMateriList }})' class="flex items-center gap-1.5 bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-bold transition-all shadow-md">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg> WA Fasilitator
                             </button>
                             
                             <a href="{{ route('event.edit', $item->id) }}" class="bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white p-2 rounded-lg border border-amber-200 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></a>
@@ -257,24 +260,53 @@
         });
     }
 
-    // Tombol Copy Template WhatsApp Blast Terpisah (Satu Kali Klik)
-    function copyWaBlast(event, fasilitatorUnik, fasilMateris) {
+    // Helper: salam pembuka otomatis sesuai jam saat tombol diklik
+    function getSalamPembuka() {
+        const jam = new Date().getHours();
+        let waktu = 'pagi';
+        if (jam >= 11 && jam < 15) waktu = 'siang';
+        else if (jam >= 15 && jam < 18) waktu = 'sore';
+        else if (jam >= 18 || jam < 4) waktu = 'malam';
+        return `Assalamualaikum Warahmatullahi Wabarakatuh 🙏\nSelamat ${waktu}, Bapak/Ibu yang berbahagia.`;
+    }
+
+    function getSalamPenutup() {
+        return `Demikian informasi yang dapat kami sampaikan. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih banyak 🙏\n\nWassalamualaikum Warahmatullahi Wabarakatuh.`;
+    }
+
+    // Helper: bungkus text WA dan copy ke clipboard + notifikasi
+    function salinKeClipboard(text, labelSukses) {
+        navigator.clipboard.writeText(text).then(() => {
+            Swal.fire({
+                icon: 'success', title: 'Tersalin!', text: labelSukses || 'Template broadcast WhatsApp telah disalin ke clipboard.',
+                timer: 2500, showConfirmButton: false, toast: true, position: 'top-end', customClass: { popup: 'rounded-xl' }
+            });
+        }).catch(err => {
+            Swal.fire('Gagal!', 'Gagal menyalin text.', 'error');
+        });
+    }
+
+    // Template khusus untuk PESERTA (registrasi, presensi, evaluasi)
+    function copyWaBlastPeserta(event, fasilitatorUnik) {
         const tglMulai = new Date(event.tanggal_mulai).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
         const tglSelesai = new Date(event.tanggal_selesai).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-        
-        // Bagian Untuk Peserta
-        let text = `📢 *INFORMASI AKSES PELATIHAN*\n\n`;
+
+        let text = `${getSalamPembuka()}\n\n`;
+        text += `Perkenalkan, kami dari panitia penyelenggara ingin menyampaikan informasi terkait pelatihan yang akan Bapak/Ibu ikuti. Mohon disimak dengan baik ya 🙏\n\n`;
+        text += `📢 *INFORMASI PELATIHAN*\n`;
         text += `*${event.nama_event.toUpperCase()}*\n`;
-        text += `🗓️ Jadwal: ${tglMulai} s/d ${tglSelesai}\n`;
-        text += `📍 Sistem: ${event.sistem_pelatihan} ${event.lokasi ? '('+event.lokasi+')' : ''}\n\n`;
-        
-        text += `Berikut adalah kumpulan link akses untuk *PESERTA*:\n\n`;
-        text += `📝 *1. Registrasi Peserta:*\n${baseUrl}/registrasi/${event.uuid}\n\n`;
-        text += `✅ *2. Presensi Kehadiran:*\n${baseUrl}/presensi/${event.uuid}\n\n`;
-        text += `⭐ *3. Evaluasi Penyelenggaraan (Wajib):*\n${baseUrl}/evaluasi-pelatihan/${event.uuid}\n\n`;
-        
-        text += `👤 *4. Evaluasi Fasilitator:*\n`;
-        if (fasilitatorUnik.length > 0) {
+        text += `🗓️ Jadwal : ${tglMulai} s/d ${tglSelesai}\n`;
+        text += `📍 Sistem : ${event.sistem_pelatihan} ${event.lokasi ? '('+event.lokasi+')' : ''}\n\n`;
+        text += `Berikut kami lampirkan beberapa tautan (link) penting yang perlu Bapak/Ibu akses selama mengikuti pelatihan ini:\n\n`;
+
+        text += `📝 *1. Registrasi Peserta*\nSebelum pelatihan dimulai, mohon melakukan registrasi terlebih dahulu melalui link berikut:\n${baseUrl}/registrasi/${event.uuid}\n\n`;
+
+        text += `✅ *2. Presensi Kehadiran*\nPada hari pelaksanaan, jangan lupa untuk mengisi presensi kehadiran melalui link berikut:\n${baseUrl}/presensi/${event.uuid}\n\n`;
+
+        text += `⭐ *3. Evaluasi Penyelenggaraan (Wajib diisi)*\nSetelah pelatihan selesai, kami sangat berharap Bapak/Ibu berkenan meluangkan waktu sejenak untuk mengisi evaluasi penyelenggaraan sebagai bahan perbaikan kami ke depannya, melalui link berikut:\n${baseUrl}/evaluasi-pelatihan/${event.uuid}\n\n`;
+
+        text += `👤 *4. Evaluasi Fasilitator/Narasumber*\nMohon juga diluangkan waktunya untuk memberikan penilaian kepada fasilitator yang telah menyampaikan materi, melalui link berikut sesuai nama fasilitatornya:\n`;
+        if (fasilitatorUnik && fasilitatorUnik.length > 0) {
             fasilitatorUnik.forEach(f => {
                 text += `▪️ ${f.nama}:\n${baseUrl}/evaluasi-fasilitator/${event.uuid}/${f.id}\n\n`;
             });
@@ -282,28 +314,38 @@
             text += `(Belum ada fasilitator)\n\n`;
         }
 
-        // Bagian Khusus Untuk Fasilitator
-        text += `-------------------------------------------\n`;
-        text += `👨‍🏫 *KHUSUS FASILITATOR (Link Menilai Peserta)*\n`;
-        text += `-------------------------------------------\n`;
-        if (fasilMateris.length > 0) {
+        text += `Kehadiran dan partisipasi aktif Bapak/Ibu sangat berarti bagi kelancaran dan keberhasilan pelatihan ini. Semoga ilmu yang didapat dapat bermanfaat dan diterapkan dengan baik ✨\n\n`;
+        text += getSalamPenutup();
+
+        salinKeClipboard(text, 'Template untuk PESERTA telah disalin ke clipboard.');
+    }
+
+    // Template khusus untuk FASILITATOR (link menilai peserta per materi)
+    function copyWaBlastFasilitator(event, fasilMateris) {
+        const tglMulai = new Date(event.tanggal_mulai).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        const tglSelesai = new Date(event.tanggal_selesai).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+
+        let text = `${getSalamPembuka()}\n\n`;
+        text += `Perkenalkan, kami dari panitia penyelenggara pelatihan. Terima kasih banyak atas kesediaan Bapak/Ibu untuk menjadi fasilitator/narasumber pada pelatihan berikut 🙏\n\n`;
+        text += `📢 *INFORMASI PELATIHAN*\n`;
+        text += `*${event.nama_event.toUpperCase()}*\n`;
+        text += `🗓️ Jadwal : ${tglMulai} s/d ${tglSelesai}\n`;
+        text += `📍 Sistem : ${event.sistem_pelatihan} ${event.lokasi ? '('+event.lokasi+')' : ''}\n\n`;
+
+        text += `👨‍🏫 *LINK PENILAIAN SKILL PESERTA*\n`;
+        text += `Sehubungan dengan materi yang Bapak/Ibu sampaikan, mohon kesediaannya untuk memberikan penilaian skill kepada peserta melalui link berikut setelah sesi materi selesai:\n\n`;
+        if (fasilMateris && fasilMateris.length > 0) {
             fasilMateris.forEach(fm => {
                 text += `▪️ ${fm.fasilitator_nama}\n(Materi: ${fm.materi_nama})\n${baseUrl}/penilaian-skill/${event.uuid}/${fm.fasilitator_id}/${fm.materi_id}\n\n`;
             });
         } else {
             text += `(Belum ada data materi/fasilitator)\n\n`;
         }
-        
-        text += `Terima kasih atas partisipasi Anda. Semangat! ✨`;
 
-        navigator.clipboard.writeText(text).then(() => {
-            Swal.fire({
-                icon: 'success', title: 'Tersalin!', text: 'Template broadcast WhatsApp telah disalin ke clipboard.',
-                timer: 2500, showConfirmButton: false, toast: true, position: 'top-end', customClass: { popup: 'rounded-xl' }
-            });
-        }).catch(err => {
-            Swal.fire('Gagal!', 'Gagal menyalin text.', 'error');
-        });
+        text += `Mohon penilaian dapat diisi dengan objektif ya, Bapak/Ibu, karena hasilnya akan menjadi bahan evaluasi dan pengembangan bagi peserta. Sekali lagi terima kasih atas dedikasi dan waktu yang telah diluangkan untuk berbagi ilmu ✨\n\n`;
+        text += getSalamPenutup();
+
+        salinKeClipboard(text, 'Template untuk FASILITATOR telah disalin ke clipboard.');
     }
 </script>
 

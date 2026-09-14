@@ -99,7 +99,18 @@
                             Master Pelatihan
                         </a>
                     </div>
-
+                    <div x-show="!menuSearch || 'evaluasi materi'.includes(menuSearch.toLowerCase())">
+                        <a href="{{ route('master.evaluasi-materi.index') }}" class="flex items-center gap-3 px-3.5 py-3 {{ request()->routeIs('master.evaluasi-materi.*') ? 'bg-blue-600 shadow-lg shadow-blue-900/50 text-white' : 'hover:bg-slate-800 text-slate-300' }} rounded-xl font-semibold text-sm transition-all">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        Master Materi Pelatihan
+                        </a>
+                    </div>
+                        <div x-show="!menuSearch || 'master skill materi'.includes(menuSearch.toLowerCase())">
+                        <a href="{{ route('master.skill-materi.index') }}" class="flex items-center gap-3 px-3.5 py-3 {{ request()->routeIs('master.skill-materi.*') ? 'bg-blue-600 shadow-lg shadow-blue-900/50 text-white' : 'hover:bg-slate-800 text-slate-300' }} rounded-xl font-semibold text-sm transition-all">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                            Master Skill Materi
+                        </a>
+                    </div>
                     <!-- Master Fasilitator -->
                     <div x-show="!menuSearch || 'master fasilitator'.includes(menuSearch.toLowerCase())">
                         <a href="{{ route('master.fasilitator.index') }}" class="flex items-center gap-3 px-3.5 py-3 {{ request()->routeIs('master.fasilitator.*') ? 'bg-blue-600 shadow-lg shadow-blue-900/50 text-white' : 'hover:bg-slate-800 text-slate-300' }} rounded-xl font-semibold text-sm transition-all">
@@ -109,12 +120,7 @@
                     </div>
 
                     <!-- Master Skill Materi -->
-                    <div x-show="!menuSearch || 'master skill materi'.includes(menuSearch.toLowerCase())">
-                        <a href="{{ route('master.skill-materi.index') }}" class="flex items-center gap-3 px-3.5 py-3 {{ request()->routeIs('master.skill-materi.*') ? 'bg-blue-600 shadow-lg shadow-blue-900/50 text-white' : 'hover:bg-slate-800 text-slate-300' }} rounded-xl font-semibold text-sm transition-all">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                            Master Skill Materi
-                        </a>
-                    </div>
+                
 
                 </div>
             </div>
@@ -137,12 +143,7 @@
                     </div>
 
                     <!-- Evaluasi Materi -->
-                    <div x-show="!menuSearch || 'evaluasi materi'.includes(menuSearch.toLowerCase())">
-                        <a href="{{ route('master.evaluasi-materi.index') }}" class="flex items-center gap-3 px-3.5 py-3 {{ request()->routeIs('master.evaluasi-materi.*') ? 'bg-blue-600 shadow-lg shadow-blue-900/50 text-white' : 'hover:bg-slate-800 text-slate-300' }} rounded-xl font-semibold text-sm transition-all">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                            Evaluasi Materi
-                        </a>
-                    </div>
+                   
 
                     <!-- Evaluasi Fasilitator -->
                     <div x-show="!menuSearch || 'evaluasi fasilitator'.includes(menuSearch.toLowerCase())">
