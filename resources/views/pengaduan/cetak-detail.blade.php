@@ -36,13 +36,13 @@
 <body>
 
     <div class="no-print">
-        <button onclick="window.print()" class="btn-print">🖨️ Cetak / Simpan PDF Dokumen Ini</button>
+        <button onclick="window.print()" class="btn-print">Cetak</button>
     </div>
 
     <div class="a4-container">
         <!-- Kop Surat -->
         <div class="kop-surat">
-            <img src="{{ asset('storage/icon.png') }}" alt="Logo FITC" class="logo">
+            <img src="{{ asset('storage/ikon.png') }}" alt="Logo FITC" class="logo">
             <div>
                 <h1 class="instansi">Flash Inspire Training Center (FIT-C)</h1>
                 <p class="alamat">Dusun Sobontoro RT 03 RW 02 Desa Watudandang, Kec. Prambon, Kab. Nganjuk, Jawa Timur</p>
