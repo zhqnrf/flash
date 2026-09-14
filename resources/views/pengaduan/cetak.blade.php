@@ -40,7 +40,7 @@
         <!-- Kop Surat -->
         <div style="border-top: 4px solid #000; border-bottom: 3px solid #000; padding: 10px 0; display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
             <div style="width: 65px; height: 65px; flex-shrink: 0;">
-                <img src="{{ asset('storage/icon.png') }}" alt="Logo FITC" style="width: 100%; height: 100%; object-fit: contain;">
+                <img src="{{ asset('storage/ikon.png') }}" alt="Logo FITC" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
             <div style="font-family: Arial, Helvetica, sans-serif;">
                 <h1 style="font-size: 14pt; font-weight: bold; color: #0056b3; margin: 0; text-transform: uppercase;">Flash Inspire Training Center (FIT-C)</h1>

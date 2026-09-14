@@ -280,7 +280,7 @@
         }
         container.innerHTML = '<div class="flex justify-center p-5"><span class="text-blue-500 font-bold animate-pulse">Memuat ulang materi...</span></div>';
         
-        fetch(`/event/ajax/materi-fasilitator/${pelatihan_id}`)
+        fetch(`{{ url('/event/ajax/materi-fasilitator') }}/${pelatihan_id}`)
             .then(res => res.json())
             .then(data => {
                 if(data.length === 0) {
