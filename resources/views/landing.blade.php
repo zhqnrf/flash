@@ -467,9 +467,9 @@
                 <!-- Card Mitra 6 -->
                 <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
-                        <img src="{{ asset('storage/logo-gema.png') }}" alt="Gema Amal" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.src='https://ui-avatars.com/api/?name=G&background=1a365d&color=fff'">
+                        <img src="{{ asset('storage/logo-lirboyo.png') }}" alt="Gema Amal" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.src='https://ui-avatars.com/api/?name=G&background=1a365d&color=fff'">
                     </div>
-                    <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">Gema Amal Nusantara</span>
+                    <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">RSU Lirboyo</span>
                 </div>
             </div>
 
@@ -505,12 +505,7 @@
                     </div>
                     <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">SEHATI</span>
                 </div>
-                <div class="flex items-center gap-3 sm:gap-4 px-5 sm:px-8 py-3 sm:py-4 bg-white rounded-2xl shadow-sm border border-gray-100 shrink-0 hover:border-[#1ba1e2] hover:shadow-md transition-all cursor-pointer group">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full border border-gray-100 p-1 flex items-center justify-center shrink-0">
-                        <img src="{{ asset('storage/logo-gema.png') }}" alt="Gema Amal" class="w-full h-full object-contain group-hover:scale-110 transition-transform" onerror="this.src='https://ui-avatars.com/api/?name=G&background=1a365d&color=fff'">
-                    </div>
-                    <span class="font-extrabold text-gray-600 text-sm sm:text-base whitespace-nowrap group-hover:text-[#1ba1e2]">Gema Amal Nusantara</span>
-                </div>
+              
             </div>
         </div>
     </section>
