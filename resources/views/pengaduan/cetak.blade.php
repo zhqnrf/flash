@@ -49,7 +49,7 @@
         </div>
 
         <div class="text-center mb-6">
-            <h2 class="font-bold uppercase" style="font-size: 13pt;">Laporan Rekapitulasi Pengaduan Pelatihan (SIMPEL)</h2>
+            <h2 class="font-bold uppercase" style="font-size: 13pt;">Laporan Rekapitulasi Pengaduan </h2>
             <p style="font-size: 10pt; margin-top: 2px;">Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('d F Y H:i') }}</p>
         </div>
 
@@ -87,14 +87,7 @@
             </tbody>
         </table>
 
-        <!-- Tanda Tangan -->
-        <div class="flex justify-end mt-12">
-            <div class="text-center w-[250px]">
-                <p style="font-size: 10pt; margin-bottom: 2px;">Kediri, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
-                <p style="font-size: 10pt; margin-bottom: 50px;">Admin Layanan SIMPEL</p>
-                <p style="font-size: 10pt; font-weight: bold; text-decoration: underline;">Tim Pelayanan FIT-C</p>
-            </div>
-        </div>
+     
     </div>
 </body>
 </html>
