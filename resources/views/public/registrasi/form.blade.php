@@ -102,7 +102,7 @@
             $detailGroups = [
                 'Informasi Pelatihan' => [
                     ['icon' => 'book', 'label' => 'Nama Pelatihan (Master)', 'value' => optional($event->pelatihan)->nama_pelatihan],
-                    ['icon' => 'hash', 'label' => 'Nomor Pelatihan', 'value' => optional($event->pelatihan)->nomor],
+
                     ['icon' => 'tag', 'label' => 'Tipe Pelatihan', 'value' => $event->tipe_pelatihan],
                     ['icon' => 'briefcase', 'label' => 'Jenis Pelatihan', 'value' => $event->jenis_pelatihan],
                     ['icon' => 'award', 'label' => 'SKP', 'value' => $event->skp ? $event->skp.' SKP' : null],
@@ -110,22 +110,18 @@
                 'Waktu Pelaksanaan' => [
                     ['icon' => 'calendar', 'label' => 'Tanggal Mulai', 'value' => \Carbon\Carbon::parse($event->tanggal_mulai)->translatedFormat('d F Y')],
                     ['icon' => 'calendar', 'label' => 'Tanggal Selesai', 'value' => \Carbon\Carbon::parse($event->tanggal_selesai)->translatedFormat('d F Y')],
-                    ['icon' => 'clock', 'label' => 'Jam Presensi Mulai', 'value' => \Carbon\Carbon::parse($event->waktu_presensi_mulai)->format('H:i').' WIB'],
-                    ['icon' => 'clock', 'label' => 'Jam Presensi Selesai', 'value' => \Carbon\Carbon::parse($event->waktu_presensi_selesai)->format('H:i').' WIB'],
-                ],
+               ],
                 'Sistem & Lokasi' => [
                     ['icon' => 'globe', 'label' => 'Sistem Pelatihan', 'value' => $event->sistem_pelatihan],
                     ['icon' => 'map-pin', 'label' => 'Lokasi', 'value' => $event->lokasi],
                     ['icon' => 'video', 'label' => 'Link Zoom', 'value' => $event->link_zoom, 'link' => $event->link_zoom],
-                    ['icon' => 'link', 'label' => 'Link Materi', 'value' => $event->link_materi ? 'Lihat Materi' : null, 'link' => $event->link_materi],
-                    ['icon' => 'check-circle', 'label' => 'Presensi', 'value' => $event->has_presensi ? 'Tersedia' : 'Tidak Ada'],
+                
                 ],
                 'Penyelenggara' => [
                     ['icon' => 'building', 'label' => 'Instansi Penyelenggara', 'value' => $event->instansi_penyelenggara],
                 ],
                 'Sertifikat & Pembayaran' => [
-                    ['icon' => 'shield', 'label' => 'Nomor Sertifikat', 'value' => $event->nomor_sertifikat],
-                    ['icon' => 'palette', 'label' => 'Warna Sertifikat', 'value' => $event->warna_sertifikat],
+        
                     ['icon' => 'credit-card', 'label' => 'Biaya Pelatihan', 'value' => $event->biaya_pelatihan > 0 ? 'Rp '.number_format($event->biaya_pelatihan,0,',','.') : 'Gratis'],
                     ['icon' => 'bank', 'label' => 'Rekening Pembayaran', 'value' => $event->rekening_pembayaran],
                 ],
