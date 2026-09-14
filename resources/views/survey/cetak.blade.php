@@ -330,8 +330,7 @@
                     <div class="text-center" style="font-size: 13px;">
                         Direktur<br>FLASH INSPIRE TRAINING CENTER
                     </div>
-                    
-                    <img src="{{ asset('storage/ikon.png') }}" class="signature-logo" alt="Logo Watermark">
+           
                     
                     <div class="signature-content" style="height: 100px; display: flex; align-items: center; justify-content: center;">
                         @if($ttd_jenis == 'qr')
